@@ -39,7 +39,7 @@ class App extends Component {
   }
 
   setupWSConn() {
-    const ws = new WebSocket('ws://localhost:3000/connect');
+    const ws = new WebSocket(this.wsUrl());
     globalData.ws = ws;
 
     ws.addEventListener('open', () => {
@@ -51,17 +51,18 @@ class App extends Component {
 
     ws.addEventListener('error', (err) => {
       console.error(err);
+
       if (ws.readyState === WebSocket.CLOSED) {
         setTimeout(() => {
           this.setupWSConn();
-        });
+        }, 5000);
       }
     });
 
     ws.addEventListener('close', () => {
       setTimeout(() => {
         this.setupWSConn();
-      });
+      }, 5000);
     });
 
     ws.addEventListener('message', (evt) => {
@@ -72,6 +73,10 @@ class App extends Component {
         console.log(err);
       }
     });
+  }
+
+  wsUrl() {
+    return `ws://${location.host}/connect`;
   }
 
   handleWSMessage(type, data) {
