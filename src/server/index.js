@@ -41,7 +41,7 @@ app.use((err, req, res, next) => {
 });
 
 const host = process.env.HOST || 'localhost';
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 3001;
 app.listen(port, host, () => {
   logger.info(`Listening on ${host}:${port}`);
 });

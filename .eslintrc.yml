@@ -7,3 +7,8 @@ rules:
   no-console: "off"
   comma-dangle: "off"
   react/jsx-filename-extension: "off"
+  import/prefer-default-export: "off"
+  no-plusplus: "off"
+  new-cap: "off"
+  no-restricted-globals: "off"
+  no-use-before-define: "off"
