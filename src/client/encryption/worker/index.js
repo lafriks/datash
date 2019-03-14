@@ -33,7 +33,7 @@ export const encryptSymmetricInWorker = (key, actualData) => new Promise((res, r
   });
 });
 
-export const decryptSymmetricInWorker = (key, encryptedData) => new Promise((res, rej) => {
+export const decryptSymmetricInWorker = (key, base64EncryptedData) => new Promise((res, rej) => {
   ensureWorkerIsRunning();
 
   const reqId = uuid();
@@ -42,6 +42,6 @@ export const decryptSymmetricInWorker = (key, encryptedData) => new Promise((res
   worker.postMessage({
     reqId,
     type: 'symmetric-decrypt',
-    data: { key, encryptedData }
+    data: { key, base64EncryptedData }
   });
 });

@@ -1,5 +1,6 @@
 import JSEncrypt from 'jsencrypt';
 import aesjs from 'aes-js';
+import base64Arraybuffer from 'base64-arraybuffer';
 import { encryptSymmetricInWorker, decryptSymmetricInWorker } from './worker';
 import { generateRandomKey, textToBytes } from '../helper';
 
@@ -27,24 +28,28 @@ export const decryptAsymmetric = (privateKey, encryptedText) => {
 export const generateSymmetricKey = () => textToBytes(generateRandomKey(16));
 
 export const encryptSymmetric = async (key, actualData) => {
-  let encryptedData;
+  let base64EncryptedData;
 
   if (window.Worker) {
-    encryptedData = await encryptSymmetricInWorker(key, actualData);
+    base64EncryptedData = await encryptSymmetricInWorker(key, actualData);
   } else {
-    encryptedData = new aesjs.ModeOfOperation.ctr(key, new aesjs.Counter(5)).encrypt(actualData);
+    base64EncryptedData = base64Arraybuffer.encode(
+      new aesjs.ModeOfOperation.ctr(key, new aesjs.Counter(5)).encrypt(actualData).buffer
+    );
   }
 
-  return encryptedData;
+  return base64EncryptedData;
 };
 
-export const decryptSymmetric = async (key, encryptedData) => {
+export const decryptSymmetric = async (key, base64EncryptedData) => {
   let decryptedData;
 
   if (window.Worker) {
-    decryptedData = await decryptSymmetricInWorker(key, encryptedData);
+    decryptedData = await decryptSymmetricInWorker(key, base64EncryptedData);
   } else {
-    decryptedData = new aesjs.ModeOfOperation.ctr(key, new aesjs.Counter(5)).decrypt(encryptedData);
+    decryptedData = new aesjs.ModeOfOperation.ctr(key, new aesjs.Counter(5)).decrypt(
+      new Uint8Array(base64Arraybuffer.decode(base64EncryptedData))
+    );
   }
 
   return decryptedData;

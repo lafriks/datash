@@ -6,6 +6,11 @@ const wrapAsyncMiddleware = asyncFn => async (req, res, next) => {
   }
 };
 
+const sendWS = (wsConn, data, cb) => {
+  wsConn.send(JSON.stringify(data), cb);
+};
+
 module.exports = {
   wrapAsyncMiddleware,
+  sendWS
 };

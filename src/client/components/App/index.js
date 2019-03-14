@@ -2,16 +2,16 @@ import React, { Component } from 'react';
 import './index.css';
 import Loader from '../Loader';
 import Content from '../Content';
-import { sendWS } from '../../helper';
-import { generateAsymmetricKeyPair, generateSymmetricKey } from '../../encryption';
-
-const globalData = window.globalData = {
-  publicKey: null,
-  privateKey: null,
-  symmetricEncKey: null,
-  ws: null,
-  clientId: null
-};
+import {
+  sendWS, textToBytes, bytesToText
+} from '../../helper';
+import globalStates, { updateGlobalStates } from '../../global-states';
+import {
+  generateAsymmetricKeyPair,
+  generateSymmetricKey,
+  decryptAsymmetric,
+  decryptSymmetric
+} from '../../encryption';
 
 class App extends Component {
   constructor(props) {
@@ -31,21 +31,23 @@ class App extends Component {
     const asymmetricKeys = generateAsymmetricKeyPair();
     const symmetricEncKey = generateSymmetricKey();
 
-    globalData.publicKey = asymmetricKeys.publicKey;
-    globalData.privateKey = asymmetricKeys.privateKey;
-    globalData.symmetricEncKey = symmetricEncKey;
+    updateGlobalStates({
+      publicKey: asymmetricKeys.publicKey,
+      privateKey: asymmetricKeys.privateKey,
+      symmetricEncKey
+    });
 
     this.setupWSConn();
   }
 
   setupWSConn() {
     const ws = new WebSocket(this.wsUrl());
-    globalData.ws = ws;
+    updateGlobalStates({ ws });
 
     ws.addEventListener('open', () => {
       sendWS(ws, {
         type: 'client-id',
-        data: globalData.publicKey
+        data: globalStates.publicKey
       });
     });
 
@@ -55,14 +57,14 @@ class App extends Component {
       if (ws.readyState === WebSocket.CLOSED) {
         setTimeout(() => {
           this.setupWSConn();
-        }, 5000);
+        }, 2000);
       }
     });
 
     ws.addEventListener('close', () => {
       setTimeout(() => {
         this.setupWSConn();
-      }, 5000);
+      }, 2000);
     });
 
     ws.addEventListener('message', (evt) => {
@@ -70,7 +72,7 @@ class App extends Component {
         const data = JSON.parse(evt.data);
         this.handleWSMessage(data.type, data.data);
       } catch (err) {
-        console.log(err);
+        console.error(err);
       }
     });
   }
@@ -84,16 +86,42 @@ class App extends Component {
       case 'client-id':
         this.onMessageClientId(data);
         break;
+      case 'share':
+        this.onMessageShare(data);
+        break;
       default:
         break;
     }
   }
 
   onMessageClientId(data) {
-    globalData.clientId = data;
+    globalStates.clientId = data;
     this.setState({
       loaded: true
     });
+  }
+
+  onMessageShare(data) {
+    const { from, encKey, data: dataArr } = data;
+    if (!from || !encKey || !dataArr) {
+      return;
+    }
+
+    const decKey = textToBytes(decryptAsymmetric(globalStates.privateKey, encKey));
+
+    const promises = dataArr.map((datum) => {
+      const { type, name, encContent } = datum;
+      return Promise.all([type, name, decryptSymmetric(decKey, encContent)]);
+    });
+    Promise.all(promises)
+      .then((resVals) => {
+        resVals.forEach(([type, name, decContent]) => {
+          console.log(type, name, bytesToText(decContent));
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   }
 
   render() {
@@ -102,10 +130,10 @@ class App extends Component {
     return (
       <div className="app">
         {
-        loaded
-          ? (<Content />)
-          : (<Loader text={loadingText} />)
-      }
+          loaded
+            ? (<Content />)
+            : (<Loader text={loadingText} />)
+        }
       </div>
     );
   }

@@ -1,14 +1,8 @@
 const express = require('express');
-const HttpStatus = require('http-status-codes');
-const { wrapAsyncMiddleware } = require('../../../helper');
+const clientsRouter = require('./clients');
 
 const router = express.Router();
 
-router.get('/generate', wrapAsyncMiddleware(async (req, res) => {
-  res.status(HttpStatus.OK)
-    .json({
-      id: Math.random() * 100
-    });
-}));
+router.use('/clients', clientsRouter);
 
 module.exports = router;

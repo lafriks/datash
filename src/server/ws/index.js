@@ -1,7 +1,9 @@
 const logger = require('../logger');
+const { sendWS } = require('../helper');
 
-const charSet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz';
-const connMap = new Map();
+// const charSet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz';
+const charSet = '0123456789';
+const connMap = global.connMap = new Map();
 
 const handleWSConn = (wsConn, req) => {
   logger.info(`WS ${req.connection.remoteAddress}`);
@@ -54,10 +56,6 @@ const onMessageClientId = (wsConn, data) => {
     type: 'client-id',
     data: clientId
   });
-};
-
-const sendWS = (wsConn, data, cb) => {
-  wsConn.send(JSON.stringify(data), cb);
 };
 
 const generateClientId = () => {
