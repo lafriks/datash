@@ -3,7 +3,9 @@ const logger = require('../logger');
 const charSet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz';
 const connMap = new Map();
 
-const handleWSConn = (wsConn) => {
+const handleWSConn = (wsConn, req) => {
+  logger.info(`WS ${req.connection.remoteAddress}`);
+
   wsConn.on('message', (message) => {
     try {
       message = JSON.parse(message);
@@ -13,8 +15,8 @@ const handleWSConn = (wsConn) => {
     }
   });
 
-  wsConn.on('close', (code, reason) => {
-    logger.error(code, reason);
+  wsConn.on('close', () => {
+    logger.info(`Closed ${wsConn.clientId}`);
 
     if (connMap.has(wsConn.clientId)) {
       connMap.delete(wsConn.clientId);
