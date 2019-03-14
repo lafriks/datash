@@ -1,12 +1,22 @@
 require('dotenv').config();
+const http = require('http');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const HttpStatus = require('http-status-codes');
+const WebSocket = require('ws');
+const { handleWSConn } = require('./ws');
 const router = require('./routes');
 const logger = require('./logger');
 
 const app = express();
+const server = http.createServer(app);
+const ws = new WebSocket.Server({ server, path: '/connect' });
+
+ws.on('connection', handleWSConn);
+ws.on('error', (err) => {
+  logger.error(err);
+});
 
 app.use((req, res, next) => {
   logger.info(`${req.method.toUpperCase()} ${req.originalUrl}`);
@@ -42,6 +52,6 @@ app.use((err, req, res, next) => {
 
 const host = process.env.HOST || 'localhost';
 const port = process.env.PORT || 3001;
-app.listen(port, host, () => {
+server.listen(port, host, () => {
   logger.info(`Listening on ${host}:${port}`);
 });

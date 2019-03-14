@@ -12,3 +12,8 @@ rules:
   new-cap: "off"
   no-restricted-globals: "off"
   no-use-before-define: "off"
+  no-multi-assign: "off"
+  class-methods-use-this: "off"
+  no-param-reassign: "off"
+  no-case-declarations: "off"
+  react/sort-comp: "off"

@@ -17,3 +17,7 @@ export const generateRandomKey = (length) => {
 export const textToBytes = text => aesjs.utils.utf8.toBytes(text);
 
 export const bytesToText = bytes => aesjs.utils.utf8.fromBytes(bytes);
+
+export const sendWS = (wsConn, data) => {
+  wsConn.send(JSON.stringify(data));
+};
