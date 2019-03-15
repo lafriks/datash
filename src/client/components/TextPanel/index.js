@@ -12,6 +12,7 @@ import {
 } from '../../encryption';
 import { formatRecipientId } from '../../helper';
 import globalStates from '../../global-states';
+import { sendBtnDefaultText } from '../../constants';
 
 const { TextArea } = Input;
 
@@ -21,7 +22,8 @@ class TextPanel extends Component {
 
     this.state = {
       textAreaVal: '',
-      isSharing: false
+      isSharing: false,
+      sendBtnText: sendBtnDefaultText
     };
 
     this.onChangeRecipientVal = this.onChangeRecipientVal.bind(this);
@@ -65,7 +67,8 @@ class TextPanel extends Component {
     }
 
     this.setState({
-      isSharing: true
+      isSharing: true,
+      sendBtnText: 'Encrypting...'
     });
 
     axios.get(`/api/v1/clients/${encodeURIComponent(recipientId)}/publicKey`)
@@ -80,24 +83,31 @@ class TextPanel extends Component {
           encryptSymmetric(globalStates.symmetricEncKey, dataBytes)
         ]);
       })
-      .then(([encKey, encData]) => axios.post(
-        `/api/v1/clients/${encodeURIComponent(globalStates.clientId)}/share`,
-        {
-          to: recipientId,
-          encKey,
-          data: [
-            {
-              type: 'text',
-              name: null,
-              encContent: encData
-            }
-          ]
-        }
-      ))
+      .then(([encKey, encData]) => {
+        this.setState({
+          sendBtnText: 'Sending...'
+        });
+
+        axios.post(
+          `/api/v1/clients/${encodeURIComponent(globalStates.clientId)}/share`,
+          {
+            to: recipientId,
+            encKey,
+            data: [
+              {
+                type: 'text',
+                name: null,
+                encContent: encData
+              }
+            ]
+          }
+        );
+      })
       .then(() => {
         message.success(`Sent to recipient ${recipientId}`);
         this.setState({
-          isSharing: false
+          isSharing: false,
+          sendBtnText: sendBtnDefaultText
         });
       })
       .catch((err) => {
@@ -114,14 +124,15 @@ class TextPanel extends Component {
         message.error(msg);
 
         this.setState({
-          isSharing: false
+          isSharing: false,
+          sendBtnText: sendBtnDefaultText
         });
       });
   }
 
   render() {
     const { style, recipientId } = this.props;
-    const { textAreaVal, isSharing } = this.state;
+    const { textAreaVal, isSharing, sendBtnText } = this.state;
 
     return (
       <div className="text-panel" style={style}>
@@ -150,6 +161,7 @@ class TextPanel extends Component {
             onReset={this.onReset}
             onShare={this.onShare}
             loading={isSharing}
+            sendBtnText={sendBtnText}
           />
         </div>
 

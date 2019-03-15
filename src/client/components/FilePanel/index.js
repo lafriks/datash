@@ -4,6 +4,7 @@ import { Upload, Icon, Input } from 'antd';
 import './index.css';
 import ShareActions from '../ShareActions';
 import { formatRecipientId } from '../../helper';
+import { sendBtnDefaultText } from '../../constants';
 
 const { Dragger } = Upload;
 
@@ -105,6 +106,7 @@ class FilePanel extends Component {
             onReset={this.onReset}
             onShare={this.onShare}
             loading={uploading}
+            sendBtnText={sendBtnDefaultText}
           />
         </div>
       </div>

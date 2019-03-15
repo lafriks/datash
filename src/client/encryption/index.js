@@ -70,7 +70,7 @@ export const textToBytesAsync = async (text) => {
 };
 
 
-export const textToBytes = async text => aesjs.utils.utf8.toBytes(text);
+export const textToBytes = text => aesjs.utils.utf8.toBytes(text);
 
 export const bytesToTextAsync = async (bytes) => {
   let text;
@@ -85,4 +85,4 @@ export const bytesToTextAsync = async (bytes) => {
 };
 
 
-export const bytesToText = async bytes => aesjs.utils.utf8.fromBytes(bytes);
+export const bytesToText = bytes => aesjs.utils.utf8.fromBytes(bytes);

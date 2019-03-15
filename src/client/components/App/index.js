@@ -117,7 +117,7 @@ class App extends Component {
       .then((resVals) => {
         resVals.forEach(([type, name, decContent]) => {
           // handle file and text, use bytesToTextAsync for text
-          console.log(type, name, bytesToText(decContent));
+          // console.log(type, name, bytesToText(decContent));
         });
       })
       .catch((err) => {
