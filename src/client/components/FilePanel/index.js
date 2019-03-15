@@ -12,7 +12,6 @@ class FilePanel extends Component {
 
     this.state = {
       fileList: [],
-      recipientIdVal: '',
       uploading: false,
     };
 
@@ -22,22 +21,24 @@ class FilePanel extends Component {
   }
 
   onChangeRecipientVal(evt) {
-    this.setState({
-      recipientIdVal: evt.target.value
-    });
+    const { onChangeRecipientId } = this.props;
+    onChangeRecipientId(evt.target.value);
   }
 
   onReset() {
+    const { onChangeRecipientId } = this.props;
+    onChangeRecipientId('');
+
     this.setState({
       fileList: [],
-      recipientIdVal: '',
     });
   }
 
   onShare() {
-    const { fileList, recipientIdVal } = this.state;
+    const { fileList } = this.state;
+    const { recipientId } = this.props;
 
-    console.log(recipientIdVal);
+    console.log(recipientId);
 
     fileList.forEach((file) => {
       console.log(file.name);
@@ -45,8 +46,8 @@ class FilePanel extends Component {
   }
 
   render() {
-    const { style } = this.props;
-    const { uploading, fileList, recipientIdVal } = this.state;
+    const { style, recipientId } = this.props;
+    const { uploading, fileList } = this.state;
 
     const draggerProps = {
       multiple: true,
@@ -94,7 +95,7 @@ class FilePanel extends Component {
               addonBefore="Recipient ID"
               placeholder="Enter recipient ID"
               allowClear
-              value={recipientIdVal}
+              value={recipientId}
               onChange={this.onChangeRecipientVal}
             />
           </div>
@@ -110,7 +111,9 @@ class FilePanel extends Component {
 }
 
 FilePanel.propTypes = {
-  style: PropTypes.instanceOf(Object).isRequired
+  style: PropTypes.instanceOf(Object).isRequired,
+  recipientId: PropTypes.string.isRequired,
+  onChangeRecipientId: PropTypes.func.isRequired
 };
 
 export default FilePanel;

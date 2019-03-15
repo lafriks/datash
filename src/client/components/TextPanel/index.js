@@ -11,7 +11,6 @@ class TextPanel extends Component {
     super(props);
 
     this.state = {
-      recipientIdVal: '',
       textAreaVal: ''
     };
 
@@ -22,9 +21,8 @@ class TextPanel extends Component {
   }
 
   onChangeRecipientVal(evt) {
-    this.setState({
-      recipientIdVal: evt.target.value
-    });
+    const { onChangeRecipientId } = this.props;
+    onChangeRecipientId(evt.target.value);
   }
 
   onChangeTextAreaVal(evt) {
@@ -34,21 +32,24 @@ class TextPanel extends Component {
   }
 
   onReset() {
+    const { onChangeRecipientId } = this.props;
+    onChangeRecipientId('');
+
     this.setState({
-      recipientIdVal: '',
       textAreaVal: ''
     });
   }
 
   onShare() {
-    const { recipientIdVal, textAreaVal } = this.state;
+    const { textAreaVal } = this.state;
+    const { recipientId } = this.props;
 
-    console.log(recipientIdVal, textAreaVal);
+    console.log(recipientId, textAreaVal);
   }
 
   render() {
-    const { style } = this.props;
-    const { recipientIdVal, textAreaVal } = this.state;
+    const { style, recipientId } = this.props;
+    const { textAreaVal } = this.state;
 
     return (
       <div className="text-panel" style={style}>
@@ -66,7 +67,7 @@ class TextPanel extends Component {
               addonBefore="Recipient ID"
               placeholder="Enter recipient ID"
               allowClear
-              value={recipientIdVal}
+              value={recipientId}
               onChange={this.onChangeRecipientVal}
             />
           </div>
@@ -83,7 +84,9 @@ class TextPanel extends Component {
 }
 
 TextPanel.propTypes = {
-  style: PropTypes.instanceOf(Object).isRequired
+  style: PropTypes.instanceOf(Object).isRequired,
+  recipientId: PropTypes.string.isRequired,
+  onChangeRecipientId: PropTypes.func.isRequired
 };
 
 export default TextPanel;

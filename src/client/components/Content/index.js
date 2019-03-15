@@ -34,6 +34,7 @@ class Content extends Component {
     this.state = {
       isSharingDone: true,
       selectedTabKey: 'text',
+      recipientId: ''
     };
 
     this.textAreaRef = React.createRef();
@@ -41,9 +42,13 @@ class Content extends Component {
     this.onShareData = this.onShareData.bind(this);
 
     this.onTabChange = this.onTabChange.bind(this);
+    this.onChangeRecipientId = this.onChangeRecipientId.bind(this);
   }
 
-  componentDidMount() {
+  onChangeRecipientId(newVal) {
+    this.setState({
+      recipientId: newVal
+    });
   }
 
   onShareData() {
@@ -99,7 +104,7 @@ class Content extends Component {
   }
 
   render() {
-    const { selectedTabKey } = this.state;
+    const { selectedTabKey, recipientId } = this.state;
 
     return (
       <div className="content">
@@ -112,8 +117,16 @@ class Content extends Component {
             onTabChange={this.onTabChange}
           >
             <div className="tab-content-wrapper">
-              <TextPanel style={displayStyle(selectedTabKey === 'text')} />
-              <FilePanel style={displayStyle(selectedTabKey === 'file')} />
+              <TextPanel
+                style={displayStyle(selectedTabKey === 'text')}
+                recipientId={recipientId}
+                onChangeRecipientId={this.onChangeRecipientId}
+              />
+              <FilePanel
+                style={displayStyle(selectedTabKey === 'file')}
+                recipientId={recipientId}
+                onChangeRecipientId={this.onChangeRecipientId}
+              />
               <ReceivedPanel style={displayStyle(selectedTabKey === 'received')} />
             </div>
           </Card>
