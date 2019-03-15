@@ -14,10 +14,6 @@ export const generateRandomKey = (length) => {
   return key;
 };
 
-export const textToBytes = text => aesjs.utils.utf8.toBytes(text);
-
-export const bytesToText = bytes => aesjs.utils.utf8.fromBytes(bytes);
-
 export const sendWS = (wsConn, data) => {
   wsConn.send(JSON.stringify(data));
 };
@@ -25,3 +21,5 @@ export const sendWS = (wsConn, data) => {
 export const displayThis = (condition, display = 'block') => (condition ? display : 'none');
 
 export const displayStyle = (condition, display) => ({ display: displayThis(condition, display) });
+
+export const formatRecipientId = val => val.trim().replace(/[^\d]+/, '');

@@ -11,7 +11,7 @@ const logger = require('./logger');
 
 const app = express();
 const server = http.createServer(app);
-const ws = new WebSocket.Server({ server, path: '/connect' });
+const ws = new WebSocket.Server({ server, path: '/connect', maxPayload: +process.env.MAX_MSG_SIZE });
 
 ws.on('connection', handleWSConn);
 ws.on('error', (err) => {
@@ -23,8 +23,8 @@ app.use((req, res, next) => {
   next();
 });
 app.use(cors());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false, limit: +process.env.MAX_MSG_SIZE }));
+app.use(bodyParser.json({ limit: '50mb' }));
 app.use(express.static(process.env.DIST || 'dist'));
 app.use('/', router);
 

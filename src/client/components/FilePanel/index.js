@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Upload, Icon, Input } from 'antd';
 import './index.css';
 import ShareActions from '../ShareActions';
+import { formatRecipientId } from '../../helper';
 
 const { Dragger } = Upload;
 
@@ -22,7 +23,7 @@ class FilePanel extends Component {
 
   onChangeRecipientVal(evt) {
     const { onChangeRecipientId } = this.props;
-    onChangeRecipientId(evt.target.value);
+    onChangeRecipientId(formatRecipientId(evt.target.value || ''));
   }
 
   onReset() {
@@ -103,6 +104,7 @@ class FilePanel extends Component {
             style={{ marginTop: 40 }}
             onReset={this.onReset}
             onShare={this.onShare}
+            loading={uploading}
           />
         </div>
       </div>

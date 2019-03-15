@@ -11,6 +11,12 @@ self.addEventListener('message', (event) => {
     case 'symmetric-decrypt':
       onSymmetricDecrypt(reqId, data);
       break;
+    case 'text-to-bytes':
+      onTextToBytes(reqId, data);
+      break;
+    case 'bytes-to-text':
+      onBytesToText(reqId, data);
+      break;
     default:
       break;
   }
@@ -37,5 +43,19 @@ const onSymmetricDecrypt = (reqId, data) => {
   self.postMessage({
     reqId,
     data: decryptedData
+  });
+};
+
+const onTextToBytes = (reqId, data) => {
+  self.postMessage({
+    reqId,
+    data: aesjs.utils.utf8.toBytes(data)
+  });
+};
+
+const onBytesToText = (reqId, data) => {
+  self.postMessage({
+    reqId,
+    data: aesjs.utils.utf8.fromBytes(data)
   });
 };

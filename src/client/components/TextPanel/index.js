@@ -1,8 +1,17 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import axios from 'axios';
+import { Input, message } from 'antd';
 import './index.css';
-import { Input } from 'antd';
 import ShareActions from '../ShareActions';
+import {
+  encryptSymmetric,
+  encryptAsymmetric,
+  textToBytesAsync,
+  bytesToText
+} from '../../encryption';
+import { formatRecipientId } from '../../helper';
+import globalStates from '../../global-states';
 
 const { TextArea } = Input;
 
@@ -11,7 +20,8 @@ class TextPanel extends Component {
     super(props);
 
     this.state = {
-      textAreaVal: ''
+      textAreaVal: '',
+      isSharing: false
     };
 
     this.onChangeRecipientVal = this.onChangeRecipientVal.bind(this);
@@ -22,7 +32,7 @@ class TextPanel extends Component {
 
   onChangeRecipientVal(evt) {
     const { onChangeRecipientId } = this.props;
-    onChangeRecipientId(evt.target.value);
+    onChangeRecipientId(formatRecipientId(evt.target.value || ''));
   }
 
   onChangeTextAreaVal(evt) {
@@ -44,12 +54,74 @@ class TextPanel extends Component {
     const { textAreaVal } = this.state;
     const { recipientId } = this.props;
 
-    console.log(recipientId, textAreaVal);
+    if (textAreaVal === '') {
+      message.error('Please enter text to send');
+      return;
+    }
+
+    if (recipientId === '') {
+      message.error('Please enter recipient ID');
+      return;
+    }
+
+    this.setState({
+      isSharing: true
+    });
+
+    axios.get(`/api/v1/clients/${encodeURIComponent(recipientId)}/publicKey`)
+      .then(({ data: { publicKey } }) => Promise.all([
+        publicKey,
+        textToBytesAsync(textAreaVal)
+      ]))
+      .then(([publicKey, dataBytes]) => {
+        const encKey = encryptAsymmetric(publicKey, bytesToText(globalStates.symmetricEncKey));
+        return Promise.all([
+          encKey,
+          encryptSymmetric(globalStates.symmetricEncKey, dataBytes)
+        ]);
+      })
+      .then(([encKey, encData]) => axios.post(
+        `/api/v1/clients/${encodeURIComponent(globalStates.clientId)}/share`,
+        {
+          to: recipientId,
+          encKey,
+          data: [
+            {
+              type: 'text',
+              name: null,
+              encContent: encData
+            }
+          ]
+        }
+      ))
+      .then(() => {
+        message.success(`Sent to recipient ${recipientId}`);
+        this.setState({
+          isSharing: false
+        });
+      })
+      .catch((err) => {
+        let msg;
+        if (err.response) {
+          if (err.response.status === 404) {
+            msg = `Recipient ${recipientId} not found`;
+          } else {
+            msg = `Error: ${err.response.status} ${err.response.statusText}`;
+          }
+        } else {
+          msg = err.message || String(err);
+        }
+        message.error(msg);
+
+        this.setState({
+          isSharing: false
+        });
+      });
   }
 
   render() {
     const { style, recipientId } = this.props;
-    const { textAreaVal } = this.state;
+    const { textAreaVal, isSharing } = this.state;
 
     return (
       <div className="text-panel" style={style}>
@@ -61,6 +133,7 @@ class TextPanel extends Component {
               autosize={false}
               placeholder="Paste or write your text to send"
               onChange={this.onChangeTextAreaVal}
+              disabled={isSharing}
             />
             <Input
               className="input-recipient-id"
@@ -69,12 +142,14 @@ class TextPanel extends Component {
               allowClear
               value={recipientId}
               onChange={this.onChangeRecipientVal}
+              disabled={isSharing}
             />
           </div>
           <ShareActions
             style={{ marginTop: 40 }}
             onReset={this.onReset}
             onShare={this.onShare}
+            loading={isSharing}
           />
         </div>
 

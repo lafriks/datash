@@ -45,3 +45,29 @@ export const decryptSymmetricInWorker = (key, base64EncryptedData) => new Promis
     data: { key, base64EncryptedData }
   });
 });
+
+export const textToBytesInWorker = text => new Promise((res, rej) => {
+  ensureWorkerIsRunning();
+
+  const reqId = uuid();
+  requestMap.set(reqId, res);
+
+  worker.postMessage({
+    reqId,
+    type: 'text-to-bytes',
+    data: text
+  });
+});
+
+export const bytesToTextInWorker = bytes => new Promise((res, rej) => {
+  ensureWorkerIsRunning();
+
+  const reqId = uuid();
+  requestMap.set(reqId, res);
+
+  worker.postMessage({
+    reqId,
+    type: 'bytes-to-text',
+    data: bytes
+  });
+});

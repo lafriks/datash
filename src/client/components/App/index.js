@@ -2,15 +2,15 @@ import React, { Component } from 'react';
 import './index.css';
 import Loader from '../Loader';
 import Content from '../Content';
-import {
-  sendWS, textToBytes, bytesToText
-} from '../../helper';
+import { sendWS } from '../../helper';
 import globalStates, { updateGlobalStates } from '../../global-states';
 import {
   generateAsymmetricKeyPair,
   generateSymmetricKey,
   decryptAsymmetric,
-  decryptSymmetric
+  decryptSymmetric,
+  textToBytes,
+  bytesToText
 } from '../../encryption';
 
 class App extends Component {
@@ -116,6 +116,7 @@ class App extends Component {
     Promise.all(promises)
       .then((resVals) => {
         resVals.forEach(([type, name, decContent]) => {
+          // handle file and text, use bytesToTextAsync for text
           console.log(type, name, bytesToText(decContent));
         });
       })
