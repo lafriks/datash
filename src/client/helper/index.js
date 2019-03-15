@@ -21,3 +21,7 @@ export const bytesToText = bytes => aesjs.utils.utf8.fromBytes(bytes);
 export const sendWS = (wsConn, data) => {
   wsConn.send(JSON.stringify(data));
 };
+
+export const displayThis = (condition, display = 'block') => (condition ? display : 'none');
+
+export const displayStyle = (condition, display) => ({ display: displayThis(condition, display) });

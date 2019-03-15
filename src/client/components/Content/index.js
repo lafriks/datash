@@ -1,27 +1,46 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import { Input, Button } from 'antd';
+import { Card } from 'antd';
 import './index.css';
+import TextPanel from '../TextPanel';
+import FilePanel from '../FilePanel';
+import ReceivedPanel from '../ReceivedPanel';
 import globalStates from '../../global-states';
 import {
   encryptSymmetric,
   encryptAsymmetric
 } from '../../encryption';
-import { textToBytes, bytesToText } from '../../helper';
+import { textToBytes, bytesToText, displayStyle } from '../../helper';
 
-const { TextArea } = Input;
+const tabList = [
+  {
+    key: 'text',
+    tab: 'Text',
+  },
+  {
+    key: 'file',
+    tab: 'File',
+  },
+  {
+    key: 'received',
+    tab: 'Data Received',
+  }
+];
 
 class Content extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      isSharingDone: true
+      isSharingDone: true,
+      selectedTabKey: 'text',
     };
 
     this.textAreaRef = React.createRef();
     this.clientIdRef = React.createRef();
     this.onShareData = this.onShareData.bind(this);
+
+    this.onTabChange = this.onTabChange.bind(this);
   }
 
   componentDidMount() {
@@ -75,16 +94,29 @@ class Content extends Component {
       });
   }
 
+  onTabChange = (key) => {
+    this.setState({ selectedTabKey: key });
+  }
+
   render() {
-    const { isSharingDone } = this.state;
+    const { selectedTabKey } = this.state;
 
     return (
       <div className="content">
-        <h3>{globalStates.clientId}</h3>
-        <div>
-          <TextArea ref={this.textAreaRef} placeholder="Your text to share" rows={4} style={{ marginBottom: 15 }} />
-          <Input ref={this.clientIdRef} placeholder="Recipient Id" style={{ marginBottom: 15 }} />
-          <Button onClick={this.onShareData} loading={!isSharingDone}>Share</Button>
+        <div className="control-panel">
+          <Card
+            tabList={tabList}
+            activeTabKey={selectedTabKey}
+            className="control-panel-wrapper"
+            title={`USER ID - ${globalStates.clientId}`}
+            onTabChange={this.onTabChange}
+          >
+            <div className="tab-content-wrapper">
+              <TextPanel style={displayStyle(selectedTabKey === 'text')} />
+              <FilePanel style={displayStyle(selectedTabKey === 'file')} />
+              <ReceivedPanel style={displayStyle(selectedTabKey === 'received')} />
+            </div>
+          </Card>
         </div>
       </div>
     );
