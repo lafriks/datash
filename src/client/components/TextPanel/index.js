@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import './index.css';
 import { Input, Button } from 'antd';
+import ShareActions from '../ShareActions';
 
 const { TextArea } = Input;
 
@@ -35,10 +36,11 @@ class TextPanel extends Component {
               allowClear
             />
           </div>
-          <div className="action-container">
-            <Button className="btn-reset">Reset</Button>
-            <Button className="btn-send" type="primary" icon="lock">Send Securely</Button>
-          </div>
+          <ShareActions
+            style={{ marginTop: 30 }}
+            onReset={() => console.log('reset')}
+            onShare={() => console.log('shared')}
+          />
         </div>
 
       </div>
