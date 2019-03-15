@@ -15,11 +15,11 @@ import { textToBytes, bytesToText, displayStyle } from '../../helper';
 const tabList = [
   {
     key: 'text',
-    tab: 'Text',
+    tab: 'Send Text',
   },
   {
     key: 'file',
-    tab: 'File',
+    tab: 'Send File',
   },
   {
     key: 'received',

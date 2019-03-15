@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import './index.css';
-import { Input } from 'antd';
+import { Input, Button } from 'antd';
 
 const { TextArea } = Input;
 
@@ -21,12 +21,26 @@ class TextPanel extends Component {
 
     return (
       <div className="text-panel" style={style}>
-        <TextArea
-          rows={20}
-          autosize={false}
-          style={{ resize: 'none' }}
-          placeholder="Here paste or write your text to share"
-        />
+        <div className="text-panel-wrapper">
+          <div className="inputs-container">
+            <TextArea
+              className="input-textarea"
+              autosize={false}
+              placeholder="Paste or write your text to send"
+            />
+            <Input
+              className="input-recipient-id"
+              addonBefore="Recipient ID"
+              placeholder="Enter recipient ID"
+              allowClear
+            />
+          </div>
+          <div className="action-container">
+            <Button className="btn-reset">Reset</Button>
+            <Button className="btn-send" type="primary" icon="lock">Send Securely</Button>
+          </div>
+        </div>
+
       </div>
     );
   }

@@ -20,6 +20,7 @@
   height: 100%;
   border-color: rgba(0, 0, 0, 0.09);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
+  border-radius: 5px;
 }
 
 .content .control-panel .control-panel-wrapper .ant-card-body {
@@ -35,3 +36,4 @@
   height: 100%;
   position: relative;
 }
+
