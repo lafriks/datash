@@ -33,7 +33,7 @@ class Content extends Component {
 
     this.state = {
       isSharingDone: true,
-      selectedTabKey: 'file',
+      selectedTabKey: 'text',
     };
 
     this.textAreaRef = React.createRef();

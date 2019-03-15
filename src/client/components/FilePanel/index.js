@@ -12,27 +12,41 @@ class FilePanel extends Component {
 
     this.state = {
       fileList: [],
+      recipientIdVal: '',
       uploading: false,
     };
 
+    this.onChangeRecipientVal = this.onChangeRecipientVal.bind(this);
     this.onReset = this.onReset.bind(this);
     this.onShare = this.onShare.bind(this);
   }
 
-  onReset() {
+  onChangeRecipientVal(evt) {
+    this.setState({
+      recipientIdVal: evt.target.value
+    });
+  }
 
+  onReset() {
+    this.setState({
+      fileList: [],
+      recipientIdVal: '',
+    });
   }
 
   onShare() {
-    const { fileList } = this.state;
+    const { fileList, recipientIdVal } = this.state;
+
+    console.log(recipientIdVal);
+
     fileList.forEach((file) => {
-      console.log(file.type);
+      console.log(file.name);
     });
   }
 
   render() {
     const { style } = this.props;
-    const { uploading, fileList } = this.state;
+    const { uploading, fileList, recipientIdVal } = this.state;
 
     const draggerProps = {
       multiple: true,
@@ -80,6 +94,8 @@ class FilePanel extends Component {
               addonBefore="Recipient ID"
               placeholder="Enter recipient ID"
               allowClear
+              value={recipientIdVal}
+              onChange={this.onChangeRecipientVal}
             />
           </div>
           <ShareActions
