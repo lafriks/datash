@@ -14,6 +14,17 @@
 }
 
 .file-panel .file-panel-wrapper .inputs-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.file-panel .file-panel-wrapper .inputs-container .file-dragger-container {
   flex: 1;
   overflow: scroll;
+  margin-bottom: 20px;
+}
+
+.file-panel .file-panel-wrapper .inputs-container .input-recipient-id .ant-input-suffix {
+  color: #ccc;
 }

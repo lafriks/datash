@@ -37,7 +37,7 @@ class TextPanel extends Component {
             />
           </div>
           <ShareActions
-            style={{ marginTop: 30 }}
+            style={{ marginTop: 40 }}
             onReset={() => console.log('reset')}
             onShare={() => console.log('shared')}
           />

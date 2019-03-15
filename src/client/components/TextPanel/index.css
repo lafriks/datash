@@ -22,7 +22,7 @@
 .text-panel .text-panel-wrapper .inputs-container .input-textarea {
   flex: 1;
   resize: none;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 .text-panel .text-panel-wrapper .inputs-container .input-recipient-id .ant-input-suffix {

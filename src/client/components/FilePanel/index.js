@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Upload, Icon, message } from 'antd';
+import { Upload, Icon, Input } from 'antd';
 import './index.css';
 import ShareActions from '../ShareActions';
 
@@ -63,19 +63,27 @@ class FilePanel extends Component {
         <div className="file-panel-wrapper">
           <div className="inputs-container">
             <div className="file-dragger-container">
-              <Dragger {...draggerProps}>
-                <p className="ant-upload-drag-icon">
-                  <Icon type="inbox" />
-                </p>
-                <p className="ant-upload-text">Click or drag file to this area to send</p>
-                <p className="ant-upload-hint">
+              <div className="file-dragger-wrapper">
+                <Dragger {...draggerProps}>
+                  <p className="ant-upload-drag-icon">
+                    <Icon type="inbox" />
+                  </p>
+                  <p className="ant-upload-text">Click or drag file to this area to send</p>
+                  <p className="ant-upload-hint">
                   Support for a single or bulk upload
-                </p>
-              </Dragger>
+                  </p>
+                </Dragger>
+              </div>
             </div>
+            <Input
+              className="input-recipient-id"
+              addonBefore="Recipient ID"
+              placeholder="Enter recipient ID"
+              allowClear
+            />
           </div>
           <ShareActions
-            style={{ marginTop: 30 }}
+            style={{ marginTop: 40 }}
             onReset={this.onReset}
             onShare={this.onShare}
           />
