@@ -1,7 +1,7 @@
+const WebSocket = require('ws');
 const logger = require('../logger');
 const { sendWS } = require('../helper');
 
-// const charSet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz';
 const charSet = '0123456789';
 const connMap = global.connMap = new Map();
 
@@ -33,15 +33,35 @@ const handleWSConn = (wsConn, req) => {
       connMap.delete(wsConn.clientId);
     }
   });
+
+  sendHeartbeat(wsConn, 'Are you alive?');
 };
 
 const handleMessage = (wsConn, type, data) => {
   switch (type) {
+    case 'heartbeat':
+      onHeartbeat(wsConn);
+      break;
     case 'client-id':
       onMessageClientId(wsConn, data);
       break;
     default:
       break;
+  }
+};
+
+const onHeartbeat = (wsConn) => {
+  setTimeout(() => {
+    sendHeartbeat(wsConn, 'Are you alive?');
+  }, 5000);
+};
+
+const sendHeartbeat = (wsConn, message) => {
+  if (wsConn.readyState === WebSocket.OPEN) {
+    sendWS(wsConn, {
+      type: 'heartbeat',
+      data: message
+    });
   }
 };
 
@@ -51,11 +71,6 @@ const onMessageClientId = (wsConn, data) => {
 
   wsConn.clientId = clientId;
   wsConn.publicKey = data;
-
-  sendWS(wsConn, {
-    type: 'client-id',
-    data: clientId
-  });
 };
 
 const generateClientId = () => {

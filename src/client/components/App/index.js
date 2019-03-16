@@ -102,6 +102,9 @@ class App extends Component {
 
   handleWSMessage(type, data) {
     switch (type) {
+      case 'heartbeat':
+        this.onHeartbeat(data);
+        break;
       case 'client-id':
         this.onMessageClientId(data);
         break;
@@ -111,6 +114,13 @@ class App extends Component {
       default:
         break;
     }
+  }
+
+  onHeartbeat() {
+    sendWS(globalStates.ws, {
+      type: 'heartbeat',
+      data: 'Yes, I am alive'
+    });
   }
 
   onMessageClientId(data) {
