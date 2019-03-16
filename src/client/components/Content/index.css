@@ -19,8 +19,22 @@
   width: 100%;
   height: 100%;
   border-color: rgba(0, 0, 0, 0.09);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
+  box-shadow: 0 10px 200px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
+}
+
+.content .control-panel .control-panel-wrapper .ant-card-head-wrapper {
+  margin-bottom: 10px;
+}
+
+.content .control-panel .control-panel-wrapper .client-id-label {
+  margin-right: 10px;
+  font-size: 10px;
+}
+
+.content .control-panel .control-panel-wrapper .client-id {
+  font-size: 25px;
+  color: #1890ff;
 }
 
 .content .control-panel .control-panel-wrapper .ant-card-body {

@@ -57,7 +57,12 @@ class Content extends Component {
             tabList={tabList}
             activeTabKey={selectedTabKey}
             className="control-panel-wrapper"
-            title={`USER ID - ${globalStates.clientId}`}
+            title={(
+              <span>
+                <span className="client-id-label">MY ID</span>
+                <span className="client-id">{globalStates.clientId.split('').join(' ')}</span>
+              </span>
+            )}
             onTabChange={this.onTabChange}
           >
             <div className="tab-content-wrapper">
