@@ -131,7 +131,16 @@ class App extends Component {
   }
 
   onMessageShare(data) {
-    const { from, encKey, data: dataArr } = data;
+    const {
+      from, encKey, data: dataArr, sharingConfirmationId
+    } = data;
+
+    if (sharingConfirmationId) {
+      sendWS(globalStates.ws, {
+        type: 'share-confirm',
+        data: sharingConfirmationId
+      });
+    }
 
     if (!from || !encKey || !dataArr) {
       return;

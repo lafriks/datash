@@ -60,6 +60,8 @@ router.post('/:clientId/share', wrapAsyncMiddleware(async (req, res) => {
 }));
 
 const shareDataViaWS = (toWSConn, from, encKey, data) => new Promise((res, rej) => {
+  const sharingConfirmationId = uuid();
+
   sendWS(
     toWSConn,
     {
@@ -68,6 +70,7 @@ const shareDataViaWS = (toWSConn, from, encKey, data) => new Promise((res, rej) 
         from,
         encKey,
         data,
+        sharingConfirmationId
       }
     },
     (err) => {
@@ -76,7 +79,8 @@ const shareDataViaWS = (toWSConn, from, encKey, data) => new Promise((res, rej) 
         return;
       }
 
-      res();
+      const { sharingConfirmationMap } = global;
+      sharingConfirmationMap.set(sharingConfirmationId, res);
     }
   );
 });

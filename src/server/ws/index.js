@@ -4,6 +4,7 @@ const { sendWS } = require('../helper');
 
 const charSet = '0123456789';
 const connMap = global.connMap = new Map();
+const sharingConfirmationMap = global.sharingConfirmationMap = new Map();
 
 const handleWSConn = (wsConn, req) => {
   logger.info(`WS ${req.connection.remoteAddress}`);
@@ -45,6 +46,9 @@ const handleMessage = (wsConn, type, data) => {
     case 'client-id':
       onMessageClientId(wsConn, data);
       break;
+    case 'share-confirm':
+      onShareConfirm(wsConn, data);
+      break;
     default:
       break;
   }
@@ -76,6 +80,13 @@ const onMessageClientId = (wsConn, data) => {
     type: 'client-id',
     data: clientId
   });
+};
+
+const onShareConfirm = (wsConn, data) => {
+  if (sharingConfirmationMap.has(data)) {
+    sharingConfirmationMap.get(data)();
+    sharingConfirmationMap.delete(data);
+  }
 };
 
 const generateClientId = () => {
