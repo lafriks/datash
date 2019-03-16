@@ -1,5 +1,6 @@
 const express = require('express');
 const HttpStatus = require('http-status-codes');
+const uuid = require('uuid/v4');
 const { sendWS, wrapAsyncMiddleware } = require('../../../helper');
 
 const router = express.Router();
@@ -44,31 +45,40 @@ router.post('/:clientId/share', wrapAsyncMiddleware(async (req, res) => {
   }
 
   const toWSConn = connMap.get(toClientId);
+  try {
+    await shareDataViaWS(toWSConn, clientId, encKey, data);
+    res.status(HttpStatus.OK)
+      .json({
+        message: 'shared'
+      });
+  } catch (err) {
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .json({
+        message: String(err)
+      });
+  }
+}));
+
+const shareDataViaWS = (toWSConn, from, encKey, data) => new Promise((res, rej) => {
   sendWS(
     toWSConn,
     {
       type: 'share',
       data: {
-        from: clientId,
+        from,
         encKey,
-        data
+        data,
       }
     },
     (err) => {
       if (err) {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .json({
-            message: String(err)
-          });
+        rej(err);
         return;
       }
 
-      res.status(HttpStatus.OK)
-        .json({
-          message: 'shared'
-        });
+      res();
     }
   );
-}));
+});
 
 module.exports = router;

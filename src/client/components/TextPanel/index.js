@@ -88,7 +88,7 @@ class TextPanel extends Component {
           sendBtnText: 'Sending...'
         });
 
-        axios.post(
+        return axios.post(
           `/api/v1/clients/${encodeURIComponent(globalStates.clientId)}/share`,
           {
             to: recipientId,

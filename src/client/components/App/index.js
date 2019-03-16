@@ -90,7 +90,14 @@ class App extends Component {
   }
 
   wsUrl() {
-    return `wss://${location.host}/connect`;
+    let protocol;
+    if (location.protocol === 'https:') {
+      protocol = 'wss:';
+    } else {
+      protocol = 'ws:';
+    }
+
+    return `${protocol}//${location.host}/connect`;
   }
 
   handleWSMessage(type, data) {
@@ -115,6 +122,7 @@ class App extends Component {
 
   onMessageShare(data) {
     const { from, encKey, data: dataArr } = data;
+
     if (!from || !encKey || !dataArr) {
       return;
     }
