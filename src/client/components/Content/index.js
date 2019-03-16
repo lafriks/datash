@@ -28,7 +28,6 @@ class Content extends Component {
     super(props);
 
     this.state = {
-      selectedTabKey: 'file',
       recipientId: ''
     };
 
@@ -43,12 +42,13 @@ class Content extends Component {
   }
 
   onTabChange = (key) => {
-    this.setState({ selectedTabKey: key });
+    const { onSelectTab } = this.props;
+    onSelectTab(key);
   }
 
   render() {
-    const { selectedTabKey, recipientId } = this.state;
-    const { receivedData } = this.props;
+    const { recipientId } = this.state;
+    const { receivedData, selectedTabKey } = this.props;
 
     return (
       <div className="content">
@@ -85,6 +85,8 @@ class Content extends Component {
 
 Content.propTypes = {
   receivedData: PropTypes.instanceOf(Array).isRequired,
+  selectedTabKey: PropTypes.string.isRequired,
+  onSelectTab: PropTypes.func.isRequired
 };
 
 export default Content;

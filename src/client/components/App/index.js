@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { message, notification } from 'antd';
+import { message, notification, Icon } from 'antd';
 import uuid from 'uuid/v4';
 import './index.css';
 import Loader from '../Loader';
@@ -22,8 +22,17 @@ class App extends Component {
     this.state = {
       loaded: false,
       loadingText: 'Loading...',
-      receivedData: []
+      receivedData: [],
+      selectedTabKey: 'file'
     };
+
+    this.onSelectTab = this.onSelectTab.bind(this);
+  }
+
+  onSelectTab(newTabKey) {
+    this.setState({
+      selectedTabKey: newTabKey
+    });
   }
 
   componentDidMount() {
@@ -110,9 +119,13 @@ class App extends Component {
       return;
     }
 
+    const notificationId = uuid();
     notification.open({
-      message: 'New data received',
-      description: 'Please wait, data is decrypting...'
+      key: notificationId,
+      duration: 0,
+      message: 'New Data',
+      description: 'Decrypting...',
+      icon: <Icon type="loading" style={{ color: '#1890ff' }} />
     });
 
     const decKey = textToBytes(decryptAsymmetric(globalStates.privateKey, encKey));
@@ -130,8 +143,17 @@ class App extends Component {
               name,
               content
             };
-          })]
+          })],
+          selectedTabKey: 'received'
         }));
+
+        notification.open({
+          key: notificationId,
+          duration: 4.5,
+          message: 'Saved',
+          description: '',
+          icon: <Icon type="check-circle" style={{ color: '#1890ff' }} />
+        });
       })
       .catch((err) => {
         const msg = err.message || String(err);
@@ -140,13 +162,21 @@ class App extends Component {
   }
 
   render() {
-    const { loaded, loadingText, receivedData } = this.state;
+    const {
+      loaded, loadingText, receivedData, selectedTabKey
+    } = this.state;
 
     return (
       <div className="app">
         {
           loaded
-            ? (<Content receivedData={receivedData} />)
+            ? (
+              <Content
+                receivedData={receivedData}
+                selectedTabKey={selectedTabKey}
+                onSelectTab={this.onSelectTab}
+              />
+            )
             : (<Loader text={loadingText} />)
         }
       </div>
