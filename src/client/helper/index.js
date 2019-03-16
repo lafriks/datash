@@ -43,7 +43,7 @@ export const arrayBufferToBlob = (arrayBuffer, mimeType = 'octet/stream') => new
   { type: mimeType }
 );
 
-export const extractFileExt = fileName => /(?:\.([^.]+))?$/.exec(fileName)[1];
+export const extractFileExt = fileName => /(?:\.([^.]+))?$/.exec(fileName)[1] || '';
 
 export const extractFileNameWithoutExt = (fileName) => {
   const ext = extractFileExt(fileName);
