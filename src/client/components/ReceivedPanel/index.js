@@ -6,6 +6,8 @@ import {
 } from 'antd';
 import './index.css';
 import emptyImage from './empty.png';
+import { MaxRecItemLength } from '../../constants';
+import { extractFileExt, extractFileNameWithoutExt } from '../../helper';
 
 class ReceivedPanel extends Component {
   constructor(props) {
@@ -98,11 +100,16 @@ class ReceivedPanel extends Component {
 
   getItemName(item) {
     if (item.type === 'file') {
-      return item.name;
+      const { name } = item;
+      const ext = extractFileExt(name);
+      const fnWithoutExt = extractFileNameWithoutExt(name);
+      const maxLn = MaxRecItemLength - ext.length;
+
+      return fnWithoutExt.length > maxLn ? `${fnWithoutExt.slice(0, maxLn)}...${ext}` : name;
     }
 
     const { content } = item;
-    return content.length > 60 ? `${content.slice(0, 60)}...` : content;
+    return content.length > MaxRecItemLength ? `${content.slice(0, MaxRecItemLength)}...` : content;
   }
 
   render() {
