@@ -90,7 +90,7 @@ class App extends Component {
   }
 
   wsUrl() {
-    return `ws://${location.host}/connect`;
+    return `wss://${location.host}/connect`;
   }
 
   handleWSMessage(type, data) {
