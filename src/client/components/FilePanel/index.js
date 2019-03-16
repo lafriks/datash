@@ -184,7 +184,6 @@ class FilePanel extends Component {
             />
           </div>
           <ShareActions
-            style={{ marginTop: 40 }}
             onReset={this.onReset}
             onShare={this.onShare}
             loading={isSharing}

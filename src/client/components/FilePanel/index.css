@@ -28,3 +28,38 @@
 .file-panel .file-panel-wrapper .inputs-container .input-recipient-id .ant-input-suffix {
   color: #ccc;
 }
+
+.file-panel .file-panel-wrapper .share-actions {
+  margin-top: 40px;
+}
+
+@media only screen
+and (max-device-width: 812px) {
+  .file-panel .file-panel-wrapper .inputs-container .file-dragger-container .file-dragger-wrapper .ant-upload-drag-icon {
+    display: block;
+  }
+
+  .file-panel .file-panel-wrapper .inputs-container .file-dragger-container .file-dragger-wrapper .ant-upload-hint {
+    display: block;
+  }
+
+  .file-panel .file-panel-wrapper .share-actions {
+    margin-top: 40px;
+  }
+}
+
+@media only screen
+and (max-device-width: 812px)
+and (orientation : landscape) {
+  .file-panel .file-panel-wrapper .inputs-container .file-dragger-container .file-dragger-wrapper .ant-upload-drag-icon {
+    display: none;
+  }
+
+  .file-panel .file-panel-wrapper .inputs-container .file-dragger-container .file-dragger-wrapper .ant-upload-hint {
+    display: none;
+  }
+
+  .file-panel .file-panel-wrapper .share-actions {
+    margin-top: 15px;
+  }
+}

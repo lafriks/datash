@@ -37,8 +37,36 @@
   position: relative;
 }
 
-@media only screen and (max-width: 600px) {
+@media only screen
+and (max-device-width: 812px) {
   .content .control-panel {
     width: 85%;
+    height: 75%;
+  }
+}
+
+@media only screen
+and (max-device-width: 812px)
+and (orientation : landscape) {
+  .content .control-panel {
+    width: 80%;
+    height: 95%;
+  }
+}
+
+@media only screen 
+and (min-device-width : 768px) 
+and (max-device-width : 1024px) {
+  .content .control-panel {
+    height: 75%;
+  }
+}
+
+@media only screen 
+and (min-device-width : 768px) 
+and (max-device-width : 1024px) 
+and (orientation : landscape) {
+  .content .control-panel {
+    height: 90%;
   }
 }

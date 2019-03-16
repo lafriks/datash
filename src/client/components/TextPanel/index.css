@@ -28,3 +28,22 @@
 .text-panel .text-panel-wrapper .inputs-container .input-recipient-id .ant-input-suffix {
   color: #ccc;
 }
+
+.text-panel .text-panel-wrapper .share-actions {
+  margin-top: 40px;
+}
+
+@media only screen
+and (max-device-width: 812px) {
+  .text-panel .text-panel-wrapper .share-actions {
+    margin-top: 40px;
+  }
+}
+
+@media only screen
+and (max-device-width: 812px)
+and (orientation : landscape) {
+  .text-panel .text-panel-wrapper .share-actions {
+    margin-top: 15px;
+  }
+}
