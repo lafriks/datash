@@ -37,3 +37,8 @@
   position: relative;
 }
 
+@media only screen and (max-width: 600px) {
+  .content .control-panel {
+    width: 85%;
+  }
+}
