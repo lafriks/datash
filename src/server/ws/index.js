@@ -40,7 +40,7 @@ const handleWSConn = (wsConn, req) => {
 const handleMessage = (wsConn, type, data) => {
   switch (type) {
     case 'heartbeat':
-      onHeartbeat(wsConn);
+      onHeartbeat(wsConn, data);
       break;
     case 'client-id':
       onMessageClientId(wsConn, data);
@@ -71,6 +71,11 @@ const onMessageClientId = (wsConn, data) => {
 
   wsConn.clientId = clientId;
   wsConn.publicKey = data;
+
+  sendWS(wsConn, {
+    type: 'client-id',
+    data: clientId
+  });
 };
 
 const generateClientId = () => {
