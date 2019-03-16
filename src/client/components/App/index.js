@@ -116,6 +116,8 @@ class App extends Component {
     Promise.all(promises)
       .then((resVals) => {
         resVals.forEach(([type, name, decContent]) => {
+          console.log(type, name);
+          // inform data is recieved and decrypting
           // handle file and text, use bytesToTextAsync for text
           // console.log(type, name, bytesToText(decContent));
         });

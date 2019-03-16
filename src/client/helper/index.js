@@ -23,3 +23,17 @@ export const displayThis = (condition, display = 'block') => (condition ? displa
 export const displayStyle = (condition, display) => ({ display: displayThis(condition, display) });
 
 export const formatRecipientId = val => val.trim().replace(/[^\d]+/, '');
+
+export const blobToArrayBuffer = blob => new Promise((res, rej) => {
+  const fileReader = new FileReader();
+
+  fileReader.addEventListener('loadend', (evt) => {
+    res(evt.target.result);
+  });
+
+  fileReader.addEventListener('error', (err) => {
+    rej(err);
+  });
+
+  fileReader.readAsArrayBuffer(blob);
+});

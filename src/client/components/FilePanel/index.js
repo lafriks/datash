@@ -1,10 +1,20 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Upload, Icon, Input } from 'antd';
+import axios from 'axios';
+import {
+  Upload, Icon, Input, message
+} from 'antd';
 import './index.css';
 import ShareActions from '../ShareActions';
-import { formatRecipientId } from '../../helper';
+import { formatRecipientId, blobToArrayBuffer } from '../../helper';
 import { sendBtnDefaultText } from '../../constants';
+import globalStates from '../../global-states';
+import {
+  encryptSymmetric,
+  encryptAsymmetric,
+  bytesToText,
+  encryptObjectSymmetric
+} from '../../encryption';
 
 const { Dragger } = Upload;
 
@@ -14,7 +24,8 @@ class FilePanel extends Component {
 
     this.state = {
       fileList: [],
-      uploading: false,
+      isSharing: false,
+      sendBtnText: sendBtnDefaultText
     };
 
     this.onChangeRecipientVal = this.onChangeRecipientVal.bind(this);
@@ -40,20 +51,89 @@ class FilePanel extends Component {
     const { fileList } = this.state;
     const { recipientId } = this.props;
 
-    console.log(recipientId);
+    if (!fileList.length) {
+      message.error('Please select file to send');
+      return;
+    }
 
-    fileList.forEach((file) => {
-      console.log(file.name);
+    if (recipientId === '') {
+      message.error('Please enter recipient ID');
+      return;
+    }
+
+    this.setState({
+      isSharing: true,
+      sendBtnText: 'Encrypting...'
     });
+
+    axios.get(`/api/v1/clients/${encodeURIComponent(recipientId)}/publicKey`)
+      .then(({ data: { publicKey } }) => Promise.all([
+        publicKey,
+        Promise.all(fileList.map(file => Promise.all([{ name: file.name }, blobToArrayBuffer(file)])))
+      ]))
+      .then(([publicKey, arrayBufferResults]) => Promise.all([
+        encryptAsymmetric(publicKey, bytesToText(globalStates.symmetricEncKey)),
+        Promise.all(
+          arrayBufferResults.map(([fileInfo, arrayBuffer]) => Promise.all(
+            [
+              encryptObjectSymmetric(globalStates.symmetricEncKey, fileInfo),
+              encryptSymmetric(globalStates.symmetricEncKey, new Uint8Array(arrayBuffer))
+            ]
+          ))
+        )
+      ]))
+      .then(([encKey, encFiles]) => {
+        this.setState({
+          sendBtnText: 'Sending...'
+        });
+
+        axios.post(
+          `/api/v1/clients/${encodeURIComponent(globalStates.clientId)}/share`,
+          {
+            to: recipientId,
+            encKey,
+            data: encFiles.map(([encFileInfo, encFileData]) => ({
+              type: 'file',
+              name: encFileInfo.name,
+              encContent: encFileData
+            }))
+          }
+        );
+      })
+      .then(() => {
+        message.success(`Sent to recipient ${recipientId}`);
+        this.setState({
+          isSharing: false,
+          sendBtnText: sendBtnDefaultText
+        });
+      })
+      .catch((err) => {
+        let msg;
+        if (err.response) {
+          if (err.response.status === 404) {
+            msg = `Recipient ${recipientId} not found`;
+          } else {
+            msg = `Error: ${err.response.status} ${err.response.statusText}`;
+          }
+        } else {
+          msg = err.message || String(err);
+        }
+        message.error(msg);
+
+        this.setState({
+          isSharing: false,
+          sendBtnText: sendBtnDefaultText
+        });
+      });
   }
 
   render() {
     const { style, recipientId } = this.props;
-    const { uploading, fileList } = this.state;
+    const { fileList, isSharing, sendBtnText } = this.state;
 
     const draggerProps = {
       multiple: true,
-      disabled: uploading,
+      disabled: isSharing,
 
       onRemove: (file) => {
         this.setState((state) => {
@@ -99,14 +179,16 @@ class FilePanel extends Component {
               allowClear
               value={recipientId}
               onChange={this.onChangeRecipientVal}
+              disabled={isSharing}
+              onPressEnter={() => this.onShare()}
             />
           </div>
           <ShareActions
             style={{ marginTop: 40 }}
             onReset={this.onReset}
             onShare={this.onShare}
-            loading={uploading}
-            sendBtnText={sendBtnDefaultText}
+            loading={isSharing}
+            sendBtnText={sendBtnText}
           />
         </div>
       </div>

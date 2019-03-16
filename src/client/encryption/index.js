@@ -86,3 +86,16 @@ export const bytesToTextAsync = async (bytes) => {
 
 
 export const bytesToText = bytes => aesjs.utils.utf8.fromBytes(bytes);
+
+export const encryptObjectSymmetric = async (key, obj) => {
+  const encObj = {};
+  const props = Object.keys(obj);
+
+  for (let i = 0; i < props.length; i++) {
+    const prop = props[i];
+    const encVal = await encryptSymmetric(key, textToBytes(String(obj[prop])));
+    encObj[prop] = encVal;
+  }
+
+  return encObj;
+};

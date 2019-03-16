@@ -154,6 +154,7 @@ class TextPanel extends Component {
               value={recipientId}
               onChange={this.onChangeRecipientVal}
               disabled={isSharing}
+              onPressEnter={() => this.onShare()}
             />
           </div>
           <ShareActions

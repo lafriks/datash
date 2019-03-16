@@ -27,7 +27,7 @@ class Content extends Component {
     super(props);
 
     this.state = {
-      selectedTabKey: 'text',
+      selectedTabKey: 'file',
       recipientId: ''
     };
 

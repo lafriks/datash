@@ -18,3 +18,4 @@ rules:
   no-case-declarations: "off"
   react/sort-comp: "off"
   max-len: [2, 120, 4, {"ignoreUrls": true}]
+  no-await-in-loop: "off"
