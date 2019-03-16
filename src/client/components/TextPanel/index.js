@@ -97,6 +97,7 @@ class TextPanel extends Component {
               {
                 type: 'text',
                 name: null,
+                mimeType: null,
                 encContent: encData
               }
             ]

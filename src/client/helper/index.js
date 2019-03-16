@@ -37,3 +37,8 @@ export const blobToArrayBuffer = blob => new Promise((res, rej) => {
 
   fileReader.readAsArrayBuffer(blob);
 });
+
+export const arrayBufferToBlob = (arrayBuffer, mimeType = 'octet/stream') => new Blob(
+  [arrayBuffer],
+  { type: mimeType }
+);

@@ -19,3 +19,5 @@ rules:
   react/sort-comp: "off"
   max-len: [2, 120, 4, {"ignoreUrls": true}]
   no-await-in-loop: "off"
+  jsx-a11y/anchor-has-content: "off"
+  jsx-a11y/anchor-is-valid: "off"

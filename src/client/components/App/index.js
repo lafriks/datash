@@ -4,7 +4,7 @@ import uuid from 'uuid/v4';
 import './index.css';
 import Loader from '../Loader';
 import Content from '../Content';
-import { sendWS } from '../../helper';
+import { sendWS, arrayBufferToBlob } from '../../helper';
 import globalStates, { updateGlobalStates } from '../../global-states';
 import {
   generateAsymmetricKeyPair,
@@ -23,7 +23,7 @@ class App extends Component {
       loaded: false,
       loadingText: 'Loading...',
       receivedData: [],
-      selectedTabKey: 'file'
+      selectedTabKey: 'received'
     };
 
     this.onSelectTab = this.onSelectTab.bind(this);
@@ -157,20 +157,31 @@ class App extends Component {
 
     const decKey = textToBytes(decryptAsymmetric(globalStates.privateKey, encKey));
 
-    Promise.all(dataArr.map(datum => Promise.all(
-      [datum.type, decryptObjectSymmetric(decKey, { name: datum.name, content: datum.encContent })]
-    )))
+    Promise.all(dataArr.map(datum => Promise.all([
+      datum.type,
+      decryptObjectSymmetric(
+        decKey,
+        { name: datum.name, mimeType: datum.mimeType, content: datum.encContent }
+      )
+    ])))
+      .then(resVals => Promise.all(resVals.map(([type, { name, mimeType, content }]) => Promise.all([
+        type,
+        name ? bytesToText(name) : null,
+        mimeType ? bytesToText(mimeType) : null,
+        type === 'text' ? bytesToText(content) : arrayBufferToBlob(content.buffer)
+      ]))))
       .then((resVals) => {
         this.setState(state => ({
-          receivedData: [...state.receivedData, ...resVals.map(([type, { name: nameBytes, content }]) => {
-            const name = nameBytes ? bytesToText(nameBytes) : null;
-            return {
+          receivedData: [
+            ...state.receivedData,
+            ...resVals.map(([type, name, mimeType, content]) => ({
               id: uuid(),
               type,
               name,
+              mimeType,
               content
-            };
-          })],
+            }))
+          ],
           selectedTabKey: 'received'
         }));
 

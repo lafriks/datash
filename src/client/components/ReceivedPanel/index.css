@@ -4,5 +4,15 @@
   position: absolute;
   top: 0;
   left: 0;
+}
+
+.received-panel .received-panel-wrapper {
+  width: 100%;
+  height: 100%;
   overflow: scroll;
+}
+
+.received-panel .received-panel-wrapper .item-name {
+  color: rgba(0, 0, 0, 0.65);
+  font-size: 13px;
 }

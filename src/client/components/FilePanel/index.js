@@ -69,7 +69,10 @@ class FilePanel extends Component {
     axios.get(`/api/v1/clients/${encodeURIComponent(recipientId)}/publicKey`)
       .then(({ data: { publicKey } }) => Promise.all([
         publicKey,
-        Promise.all(fileList.map(file => Promise.all([{ name: file.name }, blobToArrayBuffer(file)])))
+        Promise.all(fileList.map(file => Promise.all([
+          { name: file.name, mimeType: file.type || 'application/octet-stream' },
+          blobToArrayBuffer(file)
+        ])))
       ]))
       .then(([publicKey, arrayBufferResults]) => Promise.all([
         encryptAsymmetric(publicKey, bytesToText(globalStates.symmetricEncKey)),
@@ -95,6 +98,7 @@ class FilePanel extends Component {
             data: encFiles.map(([encFileInfo, encFileData]) => ({
               type: 'file',
               name: encFileInfo.name,
+              mimeType: encFileInfo.mimeType,
               encContent: encFileData
             }))
           }
