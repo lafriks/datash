@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Card } from 'antd';
 import './index.css';
 import TextPanel from '../TextPanel';
@@ -47,6 +48,7 @@ class Content extends Component {
 
   render() {
     const { selectedTabKey, recipientId } = this.state;
+    const { receivedData } = this.props;
 
     return (
       <div className="content">
@@ -69,7 +71,10 @@ class Content extends Component {
                 recipientId={recipientId}
                 onChangeRecipientId={this.onChangeRecipientId}
               />
-              <ReceivedPanel style={displayStyle(selectedTabKey === 'received')} />
+              <ReceivedPanel
+                style={displayStyle(selectedTabKey === 'received')}
+                receivedData={receivedData}
+              />
             </div>
           </Card>
         </div>
@@ -77,5 +82,9 @@ class Content extends Component {
     );
   }
 }
+
+Content.propTypes = {
+  receivedData: PropTypes.instanceOf(Array).isRequired,
+};
 
 export default Content;

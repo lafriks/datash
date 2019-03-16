@@ -93,9 +93,31 @@ export const encryptObjectSymmetric = async (key, obj) => {
 
   for (let i = 0; i < props.length; i++) {
     const prop = props[i];
-    const encVal = await encryptSymmetric(key, textToBytes(String(obj[prop])));
+    const val = obj[prop];
+
+    const encVal = await encryptSymmetric(key, textToBytes(String(val)));
     encObj[prop] = encVal;
   }
 
   return encObj;
+};
+
+
+export const decryptObjectSymmetric = async (key, encObj) => {
+  const decObj = {};
+  const props = Object.keys(encObj);
+
+  for (let i = 0; i < props.length; i++) {
+    const prop = props[i];
+    const val = encObj[prop];
+
+    if (val && typeof val === 'string') {
+      const decVal = await decryptSymmetric(key, val);
+      decObj[prop] = decVal;
+    } else {
+      decObj[prop] = val;
+    }
+  }
+
+  return decObj;
 };

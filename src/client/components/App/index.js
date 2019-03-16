@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { message, notification } from 'antd';
+import uuid from 'uuid/v4';
 import './index.css';
 import Loader from '../Loader';
 import Content from '../Content';
@@ -8,8 +10,8 @@ import {
   generateAsymmetricKeyPair,
   generateSymmetricKey,
   decryptAsymmetric,
-  decryptSymmetric,
   textToBytes,
+  decryptObjectSymmetric,
   bytesToText
 } from '../../encryption';
 
@@ -19,13 +21,14 @@ class App extends Component {
 
     this.state = {
       loaded: false,
-      loadingText: 'Loading...'
+      loadingText: 'Loading...',
+      receivedData: []
     };
   }
 
   componentDidMount() {
     this.setState({
-      loadingText: 'Generating encryption keys...'
+      loadingText: 'Generating encryption keys...',
     });
 
     const asymmetricKeys = generateAsymmetricKeyPair();
@@ -107,34 +110,43 @@ class App extends Component {
       return;
     }
 
+    notification.open({
+      message: 'New data received',
+      description: 'Please wait, data is decrypting...'
+    });
+
     const decKey = textToBytes(decryptAsymmetric(globalStates.privateKey, encKey));
 
-    const promises = dataArr.map((datum) => {
-      const { type, name, encContent } = datum;
-      return Promise.all([type, name, decryptSymmetric(decKey, encContent)]);
-    });
-    Promise.all(promises)
+    Promise.all(dataArr.map(datum => Promise.all(
+      [datum.type, decryptObjectSymmetric(decKey, { name: datum.name, content: datum.encContent })]
+    )))
       .then((resVals) => {
-        resVals.forEach(([type, name, decContent]) => {
-          console.log(type, name);
-          // inform data is recieved and decrypting
-          // handle file and text, use bytesToTextAsync for text
-          // console.log(type, name, bytesToText(decContent));
-        });
+        this.setState(state => ({
+          receivedData: [...state.receivedData, ...resVals.map(([type, { name: nameBytes, content }]) => {
+            const name = nameBytes ? bytesToText(nameBytes) : null;
+            return {
+              id: uuid(),
+              type,
+              name,
+              content
+            };
+          })]
+        }));
       })
       .catch((err) => {
-        console.error(err);
+        const msg = err.message || String(err);
+        message.error(msg);
       });
   }
 
   render() {
-    const { loaded, loadingText } = this.state;
+    const { loaded, loadingText, receivedData } = this.state;
 
     return (
       <div className="app">
         {
           loaded
-            ? (<Content />)
+            ? (<Content receivedData={receivedData} />)
             : (<Loader text={loadingText} />)
         }
       </div>

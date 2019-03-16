@@ -10,22 +10,22 @@ class ReceivedPanel extends Component {
     };
   }
 
-  componentDidMount() {
-  }
-
   render() {
-    const { style } = this.props;
+    const { style, receivedData } = this.props;
 
     return (
       <div className="received-panel" style={style}>
-      ReceivedPanel
+        <ul>
+          { receivedData.map(data => <li key={data.id}>{data.name}</li>) }
+        </ul>
       </div>
     );
   }
 }
 
 ReceivedPanel.propTypes = {
-  style: PropTypes.instanceOf(Object).isRequired
+  style: PropTypes.instanceOf(Object).isRequired,
+  receivedData: PropTypes.instanceOf(Array).isRequired
 };
 
 export default ReceivedPanel;
