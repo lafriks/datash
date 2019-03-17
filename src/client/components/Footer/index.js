@@ -1,16 +1,13 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { Spin } from 'antd';
+import { Icon } from 'antd';
 import './index.css';
 
 const Footer = () => (
   <div className="footer">
-   Footer s
+    <Icon type="copyright" size="small" />
+    <span>2019</span>
+    <span style={{ marginLeft: 5 }}>Rousan Ali</span>
   </div>
 );
-
-Footer.propTypes = {
-  // text: PropTypes.string.isRequired
-};
 
 export default Footer;
