@@ -5,3 +5,7 @@ export const MaxRecItemLength = 20;
 export const MaxDataSizeCanSendAtOnce = 1024 * 1024 * 30;
 
 export const RecipientIdMaxLength = 4;
+
+export const appName = 'Datash';
+
+export const githubURL = 'https://github.com/datash/datash';

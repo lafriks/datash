@@ -7,6 +7,8 @@ import FilePanel from '../FilePanel';
 import ReceivedPanel from '../ReceivedPanel';
 import globalStates from '../../global-states';
 import { displayStyle } from '../../helper';
+import Header from '../Header';
+import Footer from '../Footer';
 
 const tabList = [
   {
@@ -52,6 +54,7 @@ class Content extends Component {
 
     return (
       <div className="content">
+        <Header />
         <div className="control-panel">
           <Card
             tabList={tabList}
@@ -84,6 +87,7 @@ class Content extends Component {
             </div>
           </Card>
         </div>
+        <Footer />
       </div>
     );
   }

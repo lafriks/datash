@@ -90,7 +90,7 @@ class App extends Component {
     ws.addEventListener('close', () => {
       setTimeout(() => {
         this.setupWSConn();
-      }, 2000);
+      }, 5000);
     });
 
     ws.addEventListener('message', (evt) => {
