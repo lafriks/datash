@@ -5,9 +5,7 @@
   "description": "Share file or text through browser with end-to-end encryption",
   "scripts": {
     "build": "cross-env NODE_ENV=production webpack",
-    "start:prod": "node src/server/index.js",
-    "start:dev": "npm run build && node src/server/index.js",
-    "start": "npm run start:prod",
+    "start": "node src/server/index.js",
     "client": "cross-env NODE_ENV=development webpack-dev-server --devtool inline-source-map --hot",
     "server": "nodemon src/server/index.js",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
