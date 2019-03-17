@@ -8,3 +8,11 @@
   padding: 10px;
   font-size: 12px;
 }
+
+@media only screen
+and (max-device-width: 812px)
+and (orientation : landscape) {
+  .footer {
+    display: none;
+  }
+}
