@@ -68,7 +68,8 @@ module.exports = {
         target: 'ws://localhost:3001',
         ws: true,
       },
-    }
+    },
+    historyApiFallback: true,
   },
   plugins: [
     new CleanWebpackPlugin([outputDirectory]),

@@ -9,8 +9,8 @@ import { appName, githubURL } from '../../constants';
 
 const menuItems = [
   {
-    label: 'About',
-    href: '/about'
+    label: 'Home',
+    href: '/'
   },
   {
     label: 'How it works',
