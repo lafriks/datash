@@ -5,6 +5,21 @@ const { sendWS, wrapAsyncMiddleware } = require('../../../helper');
 
 const router = express.Router();
 
+router.get('/', wrapAsyncMiddleware(async (req, res) => {
+  const { connMap } = global;
+
+  const data = [];
+  connMap.forEach((wsConn, clientId) => {
+    data.push({
+      clientId,
+      publicKey: wsConn.publicKey
+    });
+  });
+
+  res.status(HttpStatus.OK)
+    .json(data);
+}));
+
 router.get('/:clientId/publicKey', wrapAsyncMiddleware(async (req, res) => {
   const { connMap } = global;
   const { clientId } = req.params;

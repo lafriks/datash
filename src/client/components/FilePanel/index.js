@@ -70,7 +70,7 @@ class FilePanel extends Component {
       .then(({ data: { publicKey } }) => Promise.all([
         publicKey,
         Promise.all(fileList.map(file => Promise.all([
-          { name: file.name, mimeType: file.type || 'application/octet-stream' },
+          { name: file.name, mimeType: file.type || 'application/octet-stream', size: `${file.size}` },
           blobToArrayBuffer(file)
         ])))
       ]))
@@ -99,6 +99,7 @@ class FilePanel extends Component {
               type: 'file',
               name: encFileInfo.name,
               mimeType: encFileInfo.mimeType,
+              size: encFileInfo.size,
               encContent: encFileData
             }))
           }

@@ -7,7 +7,7 @@ import {
 import './index.css';
 import emptyImage from './empty.png';
 import { MaxRecItemLength } from '../../constants';
-import { extractFileExt, extractFileNameWithoutExt } from '../../helper';
+import { extractFileExt, extractFileNameWithoutExt, bytesToHumanReadableString } from '../../helper';
 
 class ReceivedPanel extends Component {
   constructor(props) {
@@ -22,7 +22,7 @@ class ReceivedPanel extends Component {
 
   componentDidMount() {
     /* eslint-disable-next-line */
-    new Clipboard('.btn-to-copy-text');
+    new Clipboard('.btn-copy-text');
   }
 
   itemAvatar(item) {
@@ -59,13 +59,13 @@ class ReceivedPanel extends Component {
     return <Avatar size="small" icon={icon} style={{ backgroundColor: 'transparent', color: '#1890ff' }} />;
   }
 
-  itemAction(item) {
+  itemDownloadCopyAction(item) {
     const style = { color: '#1890ff', border: 'none' };
 
     if (item.type === 'text') {
       return (
         <Button
-          className="btn-to-copy-text"
+          className="btn-copy-text"
           title="Click to copy"
           icon="copy"
           style={style}
@@ -77,12 +77,18 @@ class ReceivedPanel extends Component {
 
     return (
       <Button
+        className="btn-download"
         title="Click to download"
         onClick={() => this.onClickDownload(item)}
         icon="download"
         style={style}
       />
     );
+  }
+
+  itemFileSizeAction(item) {
+    const size = item.type === 'file' ? (item.size || 0) : item.content.length;
+    return <span className="file-size-label">{bytesToHumanReadableString(size)}</span>;
   }
 
   onClickDownload(item) {
@@ -123,7 +129,10 @@ class ReceivedPanel extends Component {
             itemLayout="horizontal"
             dataSource={receivedData}
             renderItem={item => (
-              <List.Item actions={[this.itemAction(item)]}>
+              <List.Item
+                className="received-item"
+                actions={[this.itemFileSizeAction(item), this.itemDownloadCopyAction(item)]}
+              >
                 <List.Item.Meta
                   avatar={this.itemAvatar(item)}
                   description={<span className="item-name">{this.getItemName(item)}</span>}

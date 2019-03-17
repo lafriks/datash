@@ -161,24 +161,33 @@ class App extends Component {
       datum.type,
       decryptObjectSymmetric(
         decKey,
-        { name: datum.name, mimeType: datum.mimeType, content: datum.encContent }
+        {
+          name: datum.name,
+          mimeType: datum.mimeType,
+          size: datum.size,
+          content: datum.encContent
+        }
       )
     ])))
-      .then(resVals => Promise.all(resVals.map(([type, { name, mimeType, content }]) => Promise.all([
+      .then(resVals => Promise.all(resVals.map(([type, {
+        name, mimeType, size, content
+      }]) => Promise.all([
         type,
         name ? bytesToText(name) : null,
         mimeType ? bytesToText(mimeType) : null,
+        size ? +bytesToText(size) : null,
         type === 'text' ? bytesToText(content) : arrayBufferToBlob(content.buffer)
       ]))))
       .then((resVals) => {
         this.setState(state => ({
           receivedData: [
             ...state.receivedData,
-            ...resVals.map(([type, name, mimeType, content]) => ({
+            ...resVals.map(([type, name, mimeType, size, content]) => ({
               id: uuid(),
               type,
               name,
               mimeType,
+              size,
               content
             }))
           ],

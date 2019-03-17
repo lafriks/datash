@@ -53,3 +53,16 @@ export const extractFileNameWithoutExt = (fileName) => {
 
   return fileName.replace(new RegExp(`\\.${ext}$`), '');
 };
+
+export const bytesToHumanReadableString = (bytes) => {
+  const thresh = 1024;
+  const units = ['B', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'];
+  let unitIdx = -1;
+
+  do {
+    bytes /= thresh;
+    unitIdx++;
+  } while (Math.abs(bytes) >= thresh && unitIdx < units.length - 1);
+
+  return `${Number.parseFloat(bytes.toFixed(1))}${units[unitIdx]}`;
+};
