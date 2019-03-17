@@ -56,13 +56,17 @@ export const extractFileNameWithoutExt = (fileName) => {
 
 export const bytesToHumanReadableString = (bytes) => {
   const thresh = 1024;
-  const units = ['B', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'];
+  const units = ['KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
   let unitIdx = -1;
+
+  if (bytes < thresh) {
+    return `${bytes} B`;
+  }
 
   do {
     bytes /= thresh;
     unitIdx++;
   } while (Math.abs(bytes) >= thresh && unitIdx < units.length - 1);
 
-  return `${Number.parseFloat(bytes.toFixed(1))}${units[unitIdx]}`;
+  return `${Number.parseFloat(bytes.toFixed(1))} ${units[unitIdx]}`;
 };
