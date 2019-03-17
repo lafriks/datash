@@ -12,7 +12,7 @@ import {
 } from '../../encryption';
 import { formatRecipientId, bytesToHumanReadableString } from '../../helper';
 import globalStates from '../../global-states';
-import { sendBtnDefaultText, MaxDataSizeCanSendAtOnce } from '../../constants';
+import { sendBtnDefaultText, MaxDataSizeCanSendAtOnce, RecipientIdMaxLength } from '../../constants';
 
 const { TextArea } = Input;
 
@@ -34,7 +34,11 @@ class TextPanel extends Component {
 
   onChangeRecipientVal(evt) {
     const { onChangeRecipientId } = this.props;
-    onChangeRecipientId(formatRecipientId(evt.target.value || ''));
+    const newRecipientId = formatRecipientId(evt.target.value || '');
+
+    if (newRecipientId.length <= RecipientIdMaxLength) {
+      onChangeRecipientId(newRecipientId);
+    }
   }
 
   onChangeTextAreaVal(evt) {

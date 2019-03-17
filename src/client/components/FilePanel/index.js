@@ -7,7 +7,7 @@ import {
 import './index.css';
 import ShareActions from '../ShareActions';
 import { formatRecipientId, blobToArrayBuffer, bytesToHumanReadableString } from '../../helper';
-import { sendBtnDefaultText, MaxDataSizeCanSendAtOnce } from '../../constants';
+import { sendBtnDefaultText, MaxDataSizeCanSendAtOnce, RecipientIdMaxLength } from '../../constants';
 import globalStates from '../../global-states';
 import {
   encryptSymmetric,
@@ -35,7 +35,11 @@ class FilePanel extends Component {
 
   onChangeRecipientVal(evt) {
     const { onChangeRecipientId } = this.props;
-    onChangeRecipientId(formatRecipientId(evt.target.value || ''));
+    const newRecipientId = formatRecipientId(evt.target.value || '');
+
+    if (newRecipientId.length <= RecipientIdMaxLength) {
+      onChangeRecipientId(newRecipientId);
+    }
   }
 
   onReset() {
