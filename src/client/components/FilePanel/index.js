@@ -6,8 +6,8 @@ import {
 } from 'antd';
 import './index.css';
 import ShareActions from '../ShareActions';
-import { formatRecipientId, blobToArrayBuffer } from '../../helper';
-import { sendBtnDefaultText } from '../../constants';
+import { formatRecipientId, blobToArrayBuffer, bytesToHumanReadableString } from '../../helper';
+import { sendBtnDefaultText, MaxDataSizeCanSendAtOnce } from '../../constants';
 import globalStates from '../../global-states';
 import {
   encryptSymmetric,
@@ -58,6 +58,12 @@ class FilePanel extends Component {
 
     if (recipientId === '') {
       message.error('Please enter recipient ID');
+      return;
+    }
+
+    const totalSize = fileList.reduce((acc, current) => acc + (current.size || 0), 0);
+    if (totalSize > MaxDataSizeCanSendAtOnce) {
+      message.error(`Maximum ${bytesToHumanReadableString(MaxDataSizeCanSendAtOnce)} can be sent at once`);
       return;
     }
 

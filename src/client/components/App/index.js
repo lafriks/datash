@@ -27,12 +27,26 @@ class App extends Component {
     };
 
     this.onSelectTab = this.onSelectTab.bind(this);
+    this.onDeleteReceivedData = this.onDeleteReceivedData.bind(this);
   }
 
   onSelectTab(newTabKey) {
     this.setState({
       selectedTabKey: newTabKey
     });
+  }
+
+  onDeleteReceivedData(item) {
+    const { receivedData } = this.state;
+    const newReceivedData = receivedData.slice();
+
+    const itemIdx = newReceivedData.findIndex(elem => elem.id === item.id);
+    if (itemIdx !== -1) {
+      newReceivedData.splice(itemIdx, 1);
+      this.setState({
+        receivedData: newReceivedData
+      });
+    }
   }
 
   componentDidMount() {
@@ -220,6 +234,7 @@ class App extends Component {
             ? (
               <Content
                 receivedData={receivedData}
+                onDeleteReceivedData={this.onDeleteReceivedData}
                 selectedTabKey={selectedTabKey}
                 onSelectTab={this.onSelectTab}
               />

@@ -10,9 +10,9 @@ import {
   textToBytesAsync,
   bytesToText
 } from '../../encryption';
-import { formatRecipientId } from '../../helper';
+import { formatRecipientId, bytesToHumanReadableString } from '../../helper';
 import globalStates from '../../global-states';
-import { sendBtnDefaultText } from '../../constants';
+import { sendBtnDefaultText, MaxDataSizeCanSendAtOnce } from '../../constants';
 
 const { TextArea } = Input;
 
@@ -63,6 +63,11 @@ class TextPanel extends Component {
 
     if (recipientId === '') {
       message.error('Please enter recipient ID');
+      return;
+    }
+
+    if (textAreaVal.length > MaxDataSizeCanSendAtOnce) {
+      message.error(`Maximum ${bytesToHumanReadableString(MaxDataSizeCanSendAtOnce)} can be sent at once`);
       return;
     }
 

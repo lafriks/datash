@@ -13,9 +13,6 @@ class ReceivedPanel extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-    };
-
     this.downloaderRef = React.createRef();
     this.onClickDownload = this.onClickDownload.bind(this);
   }
@@ -91,6 +88,20 @@ class ReceivedPanel extends Component {
     return <span className="file-size-label">{bytesToHumanReadableString(size)}</span>;
   }
 
+  itemDeleteAction(item) {
+    const { onDeleteReceivedData } = this.props;
+
+    return (
+      <Button
+        className="btn-delete"
+        title="Click to delete"
+        onClick={() => onDeleteReceivedData(item)}
+        icon="delete"
+        style={{ color: '#1890ff', border: 'none' }}
+      />
+    );
+  }
+
   onClickDownload(item) {
     if (item.type === 'text') {
       return;
@@ -125,13 +136,17 @@ class ReceivedPanel extends Component {
       <div className="received-panel" style={style}>
         <div className="received-panel-wrapper">
           <List
-            locale={{ emptyText: <Empty image={emptyImage} description="No Received Data" /> }}
+            locale={{ emptyText: <Empty image={emptyImage} description="No Data Received" /> }}
             itemLayout="horizontal"
             dataSource={receivedData}
             renderItem={item => (
               <List.Item
                 className="received-item"
-                actions={[this.itemFileSizeAction(item), this.itemDownloadCopyAction(item)]}
+                actions={[
+                  this.itemFileSizeAction(item),
+                  this.itemDownloadCopyAction(item),
+                  this.itemDeleteAction(item)
+                ]}
               >
                 <List.Item.Meta
                   avatar={this.itemAvatar(item)}
@@ -154,7 +169,8 @@ class ReceivedPanel extends Component {
 
 ReceivedPanel.propTypes = {
   style: PropTypes.instanceOf(Object).isRequired,
-  receivedData: PropTypes.instanceOf(Array).isRequired
+  receivedData: PropTypes.instanceOf(Array).isRequired,
+  onDeleteReceivedData: PropTypes.func.isRequired
 };
 
 export default ReceivedPanel;

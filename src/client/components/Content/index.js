@@ -48,7 +48,7 @@ class Content extends Component {
 
   render() {
     const { recipientId } = this.state;
-    const { receivedData, selectedTabKey } = this.props;
+    const { receivedData, onDeleteReceivedData, selectedTabKey } = this.props;
 
     return (
       <div className="content">
@@ -79,6 +79,7 @@ class Content extends Component {
               <ReceivedPanel
                 style={displayStyle(selectedTabKey === 'received')}
                 receivedData={receivedData}
+                onDeleteReceivedData={onDeleteReceivedData}
               />
             </div>
           </Card>
@@ -90,6 +91,7 @@ class Content extends Component {
 
 Content.propTypes = {
   receivedData: PropTypes.instanceOf(Array).isRequired,
+  onDeleteReceivedData: PropTypes.func.isRequired,
   selectedTabKey: PropTypes.string.isRequired,
   onSelectTab: PropTypes.func.isRequired
 };
