@@ -23,7 +23,7 @@ class App extends Component {
       loaded: false,
       loadingText: 'Loading...',
       receivedData: [],
-      selectedTabKey: 'received'
+      selectedTabKey: 'file'
     };
 
     this.onSelectTab = this.onSelectTab.bind(this);
