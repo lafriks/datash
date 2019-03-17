@@ -10,7 +10,8 @@ module.exports = {
   output: {
     path: path.join(__dirname, outputDirectory),
     filename: 'bundle.js',
-    globalObject: 'this'
+    globalObject: 'this',
+    publicPath: '/'
   },
   mode,
   module: {

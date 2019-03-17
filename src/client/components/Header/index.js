@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import {
   Row, Col, Avatar, Button
 } from 'antd';
@@ -21,22 +22,28 @@ const Header = () => (
   <div className="header">
     <Row>
       <Col span={8} className="left-section">
-        <Avatar src={logoImage} size="small" />
-        <span className="app-name-label">{appName.toUpperCase().split('').join(' ')}</span>
+        <Link to="/" className="logo-link-wrapper">
+          <Avatar src={logoImage} size="small" />
+          <span className="app-name-label">{appName.toUpperCase().split('').join(' ')}</span>
+        </Link>
       </Col>
       <Col span={16} className="right-section">
         {menuItems.map(menuItem => (
-          <Button
-            key={menuItem.label}
+          <Link
             className="menu-item"
-            type="default"
-            href={menuItem.href}
+            key={menuItem.label}
+            to={menuItem.href}
           >
-            {menuItem.label}
-          </Button>
+            <Button
+              className="menu-item-btn"
+              type="default"
+            >
+              {menuItem.label}
+            </Button>
+          </Link>
         ))}
         <Button
-          className="menu-item github-link"
+          className="menu-item-github-link"
           icon="github"
           type="default"
           href={githubURL}

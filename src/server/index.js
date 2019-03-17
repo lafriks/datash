@@ -1,4 +1,6 @@
 require('dotenv').config();
+const fs = require('fs');
+const path = require('path');
 const http = require('http');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -29,10 +31,15 @@ app.use(express.static(process.env.DIST || 'dist'));
 app.use('/', router);
 
 app.use((req, res) => {
-  res.status(HttpStatus.NOT_FOUND)
-    .json({
-      message: HttpStatus.getStatusText(HttpStatus.NOT_FOUND),
-    });
+  const indexPath = path.resolve(process.env.DIST || 'dist', 'index.html');
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(HttpStatus.NOT_FOUND)
+      .json({
+        message: HttpStatus.getStatusText(HttpStatus.NOT_FOUND)
+      });
+  }
 });
 
 // eslint-disable-next-line

@@ -1,7 +1,4 @@
 .header {
-  position: absolute;
-  left: 0;
-  top: 0;
   width: 100%;
   box-sizing: border-box;
   padding: 15px;
@@ -9,6 +6,12 @@
 
 .header .left-section {
   margin-top: 5px;
+}
+
+.header .left-section .logo-link-wrapper {
+  display: inline-block;
+  text-decoration: none;
+  color: rgba(0, 0, 0, 0.65)
 }
 
 .header .left-section .app-name-label {
@@ -22,13 +25,22 @@
 }
 
 .header .right-section .menu-item {
+  display: inline-block;
+  margin: 0 5px;
+}
+
+.header .right-section .menu-item .menu-item-btn {
   font-size: 12px;
   border: none;
   box-shadow: none;
+  padding: 0 10px;
 }
 
-.header .right-section .menu-item.github-link {
-  padding: 0 15px;
+.header .right-section .menu-item-github-link {
+  font-size: 12px;
+  border: none;
+  box-shadow: none;
+  padding: 0 15px !important;
 }
 
 @media only screen
@@ -37,12 +49,12 @@ and (max-device-width: 812px) {
     padding-right: 0px;
   }
 
-  .header .right-section .menu-item {
-    padding: 0 10px;
+  .header .right-section .menu-item .menu-item-btn {
+    padding: 0 5px;
   }
 
-  .header .right-section .menu-item.github-link {
-    padding: 0 10px;
+  .header .right-section .menu-item-github-link {
+    padding: 0 10px !important;
   }
 }
 

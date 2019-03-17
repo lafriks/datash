@@ -1,0 +1,81 @@
+.control-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px;
+  height: 85%;
+}
+
+.control-panel .control-panel-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  border: 1px solid #d9d9d9;
+  box-shadow: 0 10px 200px rgba(0,0,0,0.3);
+  border-radius: 5px;
+}
+
+.control-panel .control-panel-wrapper .ant-card-head-wrapper {
+  margin-bottom: 10px;
+}
+
+.control-panel .control-panel-wrapper .client-id-label {
+  margin-right: 5px;
+  font-size: 10px;
+}
+
+.control-panel .control-panel-wrapper .client-id {
+  font-size: 25px;
+  color: #1890ff;
+}
+
+.control-panel .control-panel-wrapper .ant-card-body {
+  flex: 1;
+}
+
+.control-panel .control-panel-wrapper .ant-tabs-tab {
+  font-size: 12px;
+}
+
+.control-panel .control-panel-wrapper .tab-content-wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+@media only screen
+and (max-device-width: 812px) {
+  .control-panel {
+    width: 85%;
+    height: 90%;
+  }
+}
+
+@media only screen
+and (max-device-width: 812px)
+and (orientation : landscape) {
+  .control-panel {
+    width: 80%;
+    height: 95%;
+  }
+}
+
+@media only screen 
+and (min-device-width : 768px) 
+and (max-device-width : 1024px) {
+  .control-panel {
+    width: 75%;
+    height: 85%;
+  }
+}
+
+@media only screen 
+and (min-device-width : 768px) 
+and (max-device-width : 1024px) 
+and (orientation : landscape) {
+  .control-panel {
+    height: 95%;
+  }
+}
