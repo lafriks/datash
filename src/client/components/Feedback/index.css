@@ -1,0 +1,29 @@
+.feedback {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.feedback .feedback-wrapper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 800px;
+  height: 85%;
+}
+
+.feedback .feedback-wrapper h2 {
+  clear: both;
+  margin: 1.6em 0 .6em;
+  color: #0d1a26;
+  font-weight: 500;
+  font-family: Avenir,-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei','Helvetica Neue',Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol',sans-serif;
+  font-size: 22px;
+  line-height: 32px;
+}
+
+.feedback .feedback-wrapper .input-textarea {
+  resize: none;
+  margin-bottom: 20px;
+}
