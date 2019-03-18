@@ -4,9 +4,11 @@ const { wrapAsyncMiddleware } = require('../../../helper');
 
 const router = express.Router();
 
-router.post('/', wrapAsyncMiddleware(async (req, res) => {
+router.get('/', wrapAsyncMiddleware(async (req, res) => {
   res.status(HttpStatus.OK)
-    .json({});
+    .json({
+      x: process.env.X
+    });
 }));
 
 module.exports = router;
