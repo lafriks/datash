@@ -13,8 +13,8 @@ const menuItems = [
     href: '/'
   },
   {
-    label: 'How it works',
-    href: '/how-it-works'
+    label: 'About',
+    href: '/about'
   }
 ];
 

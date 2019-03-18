@@ -6,7 +6,6 @@ import Header from '../Header';
 import ControlPanel from '../ControlPanel';
 import Footer from '../Footer';
 import About from '../About';
-import HowItWorks from '../HowItWorks';
 import NotFound from '../NotFound';
 
 class Content extends Component {
@@ -40,7 +39,6 @@ class Content extends Component {
               )}
             />
             <Route exact path="/about" component={About} />
-            <Route exact path="/how-it-works" component={HowItWorks} />
             <Route component={NotFound} />
           </Switch>
         </div>

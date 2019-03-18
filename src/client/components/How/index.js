@@ -57,7 +57,7 @@ const processSteps = [
 
 const About = () => (
   <div className="about">
-    <h2>What is Datash ?</h2>
+    {/* <h2>What is Datash ?</h2>
     <p>
       Datash helps you to send or receive text or file from one device to another one through browser,
       it doesn't require any login or registration.
@@ -79,7 +79,7 @@ const About = () => (
       shown on the top of centered control panel of recipient device, then hit
       <span className="highlight">Send Securely</span>
       button to let it encrypt and send to your recipient device.
-    </p>
+    </p> */}
 
     <h2>How does it work ?</h2>
     <p>
