@@ -36,6 +36,7 @@ class Feedback extends React.Component {
 
   onSubmit() {
     const { ratingValue, textAreaVal } = this.state;
+    const { history } = this.props;
 
     this.setState({
       submittingFeedback: true
@@ -55,6 +56,7 @@ class Feedback extends React.Component {
         this.setState({
           submittingFeedback: false
         });
+        history.push('/');
       })
       .catch((err) => {
         message.error(err.message || String(err));

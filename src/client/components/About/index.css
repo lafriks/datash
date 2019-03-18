@@ -61,6 +61,14 @@ and (max-device-width: 812px) {
   .about {
     padding: 10px 35px;
   }
+
+  .about h2 {
+    font-size: 20px;
+  }
+
+  .about p {
+    font-size: 13px;
+  }
 }
 
 @media only screen

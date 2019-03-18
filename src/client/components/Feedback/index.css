@@ -27,3 +27,34 @@
   resize: none;
   margin-bottom: 20px;
 }
+
+@media only screen
+and (max-device-width: 812px) {
+  .feedback .feedback-wrapper {
+    width: 85%;
+    height: 90%;
+  }
+
+  .feedback .feedback-wrapper h2 {
+    font-size: 20px;
+  }
+
+  .feedback .feedback-wrapper p {
+    font-size: 13px;
+  }
+}
+
+@media only screen
+and (max-device-width: 812px)
+and (orientation : landscape) {
+  .feedback .feedback-wrapper {
+    width: 85%;
+    height: auto;
+    padding: 15px;
+    box-sizing: border-box;
+  }
+
+  .feedback .feedback-wrapper .input-textarea {
+    height: 85px;
+  }
+}
