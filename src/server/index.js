@@ -7,9 +7,24 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const HttpStatus = require('http-status-codes');
 const WebSocket = require('ws');
+const mongoose = require('mongoose');
 const { handleWSConn } = require('./ws');
 const router = require('./routes');
 const logger = require('./logger');
+
+mongoose.connect(process.env.MONGODB_CONNECT_STRING, {
+  family: 4,
+  useCreateIndex: true,
+  useNewUrlParser: true,
+  useFindAndModify: false,
+});
+const db = mongoose.connection;
+db.on('error', (err) => {
+  logger.error(err);
+});
+db.once('open', () => {
+  logger.info('Database connection established');
+});
 
 const app = express();
 const server = http.createServer(app);

@@ -1,9 +1,13 @@
 import React from 'react';
-import { Rate, Input, Button } from 'antd';
+import axios from 'axios';
+import {
+  Rate, Input, Button, message
+} from 'antd';
 import './index.css';
+import globalStates from '../../global-states';
 
 const { TextArea } = Input;
-const ratingLabel = ['Terrible', 'Bad', 'Normal', 'Good', 'Wonderful'];
+const ratingLabels = ['Terrible', 'Bad', 'Normal', 'Good', 'Wonderful'];
 
 class Feedback extends React.Component {
   constructor(props) {
@@ -11,7 +15,8 @@ class Feedback extends React.Component {
 
     this.state = {
       ratingValue: 3,
-      textAreaVal: ''
+      textAreaVal: '',
+      submittingFeedback: false
     };
 
     this.onChangeRatingVal = this.onChangeRatingVal.bind(this);
@@ -30,11 +35,37 @@ class Feedback extends React.Component {
   }
 
   onSubmit() {
+    const { ratingValue, textAreaVal } = this.state;
 
+    this.setState({
+      submittingFeedback: true
+    });
+
+    const payload = {
+      rating: ratingValue,
+      ratingLabel: ratingLabels[ratingValue - 1],
+      suggestions: textAreaVal,
+      userAgent: navigator.userAgent,
+      clientId: globalStates.clientId
+    };
+
+    axios.post('/api/v1/feedback', payload)
+      .then(() => {
+        message.success('Thanks for your feedback!');
+        this.setState({
+          submittingFeedback: false
+        });
+      })
+      .catch((err) => {
+        message.error(err.message || String(err));
+        this.setState({
+          submittingFeedback: false
+        });
+      });
   }
 
   render() {
-    const { ratingValue, textAreaVal } = this.state;
+    const { ratingValue, textAreaVal, submittingFeedback } = this.state;
 
     return (
       <div className="feedback">
@@ -42,8 +73,8 @@ class Feedback extends React.Component {
           <div>
             <h2>How did you feel about the application?</h2>
             <div>
-              <Rate tooltips={ratingLabel} onChange={this.onChangeRatingVal} value={ratingValue} />
-              <span className="ant-rate-text">{ratingLabel[ratingValue - 1]}</span>
+              <Rate tooltips={ratingLabels} onChange={this.onChangeRatingVal} value={ratingValue} />
+              <span className="ant-rate-text">{ratingLabels[ratingValue - 1]}</span>
             </div>
           </div>
           <div>
@@ -58,6 +89,7 @@ class Feedback extends React.Component {
             />
             <div style={{ textAlign: 'right' }}>
               <Button
+                loading={submittingFeedback}
                 className="btn-submit"
                 type="primary"
                 onClick={this.onSubmit}
