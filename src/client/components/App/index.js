@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { message, notification, Icon } from 'antd';
+import { notification, Icon } from 'antd';
 import uuid from 'uuid/v4';
 import './index.css';
 import Loader from '../Loader';
@@ -14,6 +14,12 @@ import {
   decryptObjectSymmetric,
   bytesToText
 } from '../../encryption';
+import {
+  cacheClientId,
+  getCachedClientId,
+  cacheAsymmetricKeys,
+  getCachedAsymmetricKeys,
+} from '../../caching';
 
 class App extends Component {
   constructor(props) {
@@ -54,7 +60,7 @@ class App extends Component {
       loadingText: 'Generating encryption keys...',
     });
 
-    const asymmetricKeys = generateAsymmetricKeyPair();
+    const asymmetricKeys = getCachedAsymmetricKeys() || generateAsymmetricKeyPair();
     const symmetricEncKey = generateSymmetricKey();
 
     updateGlobalStates({
@@ -62,6 +68,8 @@ class App extends Component {
       privateKey: asymmetricKeys.privateKey,
       symmetricEncKey
     });
+
+    cacheAsymmetricKeys(asymmetricKeys);
 
     this.setupWSConn();
   }
@@ -73,7 +81,10 @@ class App extends Component {
     ws.addEventListener('open', () => {
       sendWS(ws, {
         type: 'client-id',
-        data: { publicKey: globalStates.publicKey, cachedClientId: this.getCachedClientId() }
+        data: {
+          publicKey: globalStates.publicKey,
+          cachedClientId: getCachedClientId()
+        }
       });
     });
 
@@ -96,14 +107,6 @@ class App extends Component {
         console.error(err);
       }
     });
-  }
-
-  cacheClientId(clientId) {
-    localStorage.setItem('clientId', clientId);
-  }
-
-  getCachedClientId() {
-    return localStorage.getItem('clientId');
   }
 
   wsUrl() {
@@ -145,7 +148,7 @@ class App extends Component {
     this.setState({
       loaded: true
     });
-    this.cacheClientId(globalStates.clientId);
+    cacheClientId(globalStates.clientId);
   }
 
   onMessageShare(data) {
