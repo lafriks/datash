@@ -79,12 +79,7 @@ class App extends Component {
 
     ws.addEventListener('error', (err) => {
       console.error(err);
-
-      if (ws.readyState === WebSocket.CLOSED) {
-        setTimeout(() => {
-          this.setupWSConn();
-        }, 2000);
-      }
+      ws.close();
     });
 
     ws.addEventListener('close', () => {
