@@ -21,10 +21,7 @@ const onWorkerMessage = (event) => {
 };
 
 export const encryptSymmetricInWorker = (key, actualData) => new Promise((res, rej) => {
-  ensureWorkerIsRunning();
-
-  const reqId = uuid();
-  requestMap.set(reqId, res);
+  const reqId = registerWorkerRequest(res, rej);
 
   worker.postMessage({
     reqId,
@@ -34,10 +31,7 @@ export const encryptSymmetricInWorker = (key, actualData) => new Promise((res, r
 });
 
 export const decryptSymmetricInWorker = (key, base64EncryptedData) => new Promise((res, rej) => {
-  ensureWorkerIsRunning();
-
-  const reqId = uuid();
-  requestMap.set(reqId, res);
+  const reqId = registerWorkerRequest(res, rej);
 
   worker.postMessage({
     reqId,
@@ -47,10 +41,7 @@ export const decryptSymmetricInWorker = (key, base64EncryptedData) => new Promis
 });
 
 export const textToBytesInWorker = text => new Promise((res, rej) => {
-  ensureWorkerIsRunning();
-
-  const reqId = uuid();
-  requestMap.set(reqId, res);
+  const reqId = registerWorkerRequest(res, rej);
 
   worker.postMessage({
     reqId,
@@ -60,10 +51,7 @@ export const textToBytesInWorker = text => new Promise((res, rej) => {
 });
 
 export const bytesToTextInWorker = bytes => new Promise((res, rej) => {
-  ensureWorkerIsRunning();
-
-  const reqId = uuid();
-  requestMap.set(reqId, res);
+  const reqId = registerWorkerRequest(res, rej);
 
   worker.postMessage({
     reqId,
@@ -71,3 +59,18 @@ export const bytesToTextInWorker = bytes => new Promise((res, rej) => {
     data: bytes
   });
 });
+
+const registerWorkerRequest = (resFn, rejFn) => {
+  ensureWorkerIsRunning();
+
+  const reqId = uuid();
+  requestMap.set(reqId, (resp) => {
+    if (resp.error) {
+      rejFn(new Error(resp.error));
+    } else {
+      resFn(resp.data);
+    }
+  });
+
+  return reqId;
+};

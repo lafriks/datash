@@ -70,11 +70,13 @@ const sendHeartbeat = (wsConn, message) => {
 };
 
 const onMessageClientId = (wsConn, data) => {
-  const clientId = generateClientId();
+  const { publicKey, cachedClientId } = data;
+
+  const clientId = cachedClientId && !connMap.has(cachedClientId) ? cachedClientId : generateClientId();
   connMap.set(clientId, wsConn);
 
   wsConn.clientId = clientId;
-  wsConn.publicKey = data;
+  wsConn.publicKey = publicKey;
 
   sendWS(wsConn, {
     type: 'client-id',

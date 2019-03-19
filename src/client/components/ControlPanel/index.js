@@ -55,7 +55,7 @@ class ControlPanel extends React.Component {
           title={(
             <span>
               <span className="client-id-label">MY ID</span>
-              <span className="client-id">{globalStates.clientId.split('').join(' ')}</span>
+              <span className="client-id">{globalStates.clientId}</span>
             </span>
           )}
           onTabChange={onTabChange}

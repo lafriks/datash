@@ -73,7 +73,7 @@ class App extends Component {
     ws.addEventListener('open', () => {
       sendWS(ws, {
         type: 'client-id',
-        data: globalStates.publicKey
+        data: { publicKey: globalStates.publicKey, cachedClientId: this.getCachedClientId() }
       });
     });
 
@@ -101,6 +101,14 @@ class App extends Component {
         console.error(err);
       }
     });
+  }
+
+  cacheClientId(clientId) {
+    localStorage.setItem('clientId', clientId);
+  }
+
+  getCachedClientId() {
+    return localStorage.getItem('clientId');
   }
 
   wsUrl() {
@@ -142,6 +150,7 @@ class App extends Component {
     this.setState({
       loaded: true
     });
+    this.cacheClientId(globalStates.clientId);
   }
 
   onMessageShare(data) {
@@ -217,8 +226,13 @@ class App extends Component {
         });
       })
       .catch((err) => {
-        const msg = err.message || String(err);
-        message.error(msg);
+        notification.open({
+          key: notificationId,
+          duration: 4.5,
+          message: 'Error',
+          description: err.message || String(err),
+          icon: <Icon type="close-circle" style={{ color: 'rgb(245, 38, 50)' }} />
+        });
       });
   }
 
