@@ -4,7 +4,7 @@ import {
   Row, Col, Avatar, Button
 } from 'antd';
 import './index.css';
-import logoImage from './logo.png';
+import logoImage from '../../../../public/logo.png';
 import { appName, githubURL } from '../../constants';
 
 const menuItems = [
