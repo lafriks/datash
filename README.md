@@ -1,6 +1,6 @@
 <h3 align="center">
     <a href="https://datash.co/">
-        <img height="100" src="https://raw.githubusercontent.com/datash/datash/develop/public/logo.png" alt="logo" title="Datash">
+        <img height="100" src="https://raw.githubusercontent.com/datash/datash/master/public/logo.png" alt="logo" title="Datash">
     </a>
 </h1>
 <h3 align="center">
