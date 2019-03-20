@@ -1,3 +1,5 @@
+import { encryptAsymmetric, decryptAsymmetric } from '../encryption';
+
 export const cacheClientId = (clientId) => {
   localStorage.setItem('clientId', clientId);
 };
@@ -14,8 +16,28 @@ export const getCachedAsymmetricKeys = () => {
 
   try {
     const keyPair = JSON.parse(cachedKeys);
-    return keyPair.publicKey && keyPair.privateKey ? keyPair : null;
+    return isValidAsymmetricKeys(keyPair) ? keyPair : null;
   } catch (err) {
     return null;
   }
+};
+
+const isValidAsymmetricKeys = (keyPair) => {
+  const { publicKey, privateKey } = keyPair;
+
+  if (!publicKey || !privateKey) {
+    return false;
+  }
+
+  const encryptTest = encryptAsymmetric(publicKey, 'test');
+  if (!encryptTest) {
+    return false;
+  }
+
+  const decryptTest = decryptAsymmetric(privateKey, encryptTest);
+  if (!decryptTest) {
+    return false;
+  }
+
+  return true;
 };
