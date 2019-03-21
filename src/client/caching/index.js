@@ -6,6 +6,12 @@ export const cacheClientId = (clientId) => {
 
 export const getCachedClientId = () => localStorage.getItem('clientId');
 
+export const cacheSessionId = (sessionId) => {
+  localStorage.setItem('sessionId', sessionId);
+};
+
+export const getCachedSessionId = () => localStorage.getItem('sessionId');
+
 export const cacheAsymmetricKeys = (keys) => {
   localStorage.setItem('asymmetricKeys', JSON.stringify(keys));
 };

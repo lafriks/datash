@@ -13,10 +13,10 @@ router.get('/', basicAuth(basicAuthConfig), wrapAsyncMiddleware(async (req, res)
   const { connMap } = global;
 
   const data = [];
-  connMap.forEach((wsConn, clientId) => {
+  connMap.forEach((wsConns, clientId) => {
     data.push({
       clientId,
-      publicKey: wsConn.publicKey
+      publicKey: wsConns[0].publicKey
     });
   });
 
@@ -38,7 +38,7 @@ router.get('/:clientId/publicKey', wrapAsyncMiddleware(async (req, res) => {
 
   res.status(HttpStatus.OK)
     .json({
-      publicKey: connMap.get(clientId).publicKey
+      publicKey: connMap.get(clientId)[0].publicKey
     });
 }));
 
@@ -63,9 +63,9 @@ router.post('/:clientId/share', wrapAsyncMiddleware(async (req, res) => {
     return;
   }
 
-  const toWSConn = connMap.get(toClientId);
+  const toWSConns = connMap.get(toClientId);
   try {
-    await shareDataViaWS(toWSConn, clientId, encKey, data);
+    await shareDataViaWS(toWSConns, clientId, encKey, data);
     res.status(HttpStatus.OK)
       .json({
         message: 'shared'
@@ -78,30 +78,32 @@ router.post('/:clientId/share', wrapAsyncMiddleware(async (req, res) => {
   }
 }));
 
-const shareDataViaWS = (toWSConn, from, encKey, data) => new Promise((res, rej) => {
+const shareDataViaWS = (toWSConns, from, encKey, data) => new Promise((res, rej) => {
   const sharingConfirmationId = uuid();
 
-  sendWS(
-    toWSConn,
-    {
-      type: 'share',
-      data: {
-        from,
-        encKey,
-        data,
-        sharingConfirmationId
-      }
-    },
-    (err) => {
-      if (err) {
-        rej(err);
-        return;
-      }
+  toWSConns.forEach((toWSConn) => {
+    sendWS(
+      toWSConn,
+      {
+        type: 'share',
+        data: {
+          from,
+          encKey,
+          data,
+          sharingConfirmationId
+        }
+      },
+      (err) => {
+        if (err) {
+          rej(err);
+          return;
+        }
 
-      const { sharingConfirmationMap } = global;
-      sharingConfirmationMap.set(sharingConfirmationId, res);
-    }
-  );
+        const { sharingConfirmationMap } = global;
+        sharingConfirmationMap.set(sharingConfirmationId, res);
+      }
+    );
+  });
 });
 
 module.exports = router;

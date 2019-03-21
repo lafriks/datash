@@ -17,6 +17,8 @@ import {
 import {
   cacheClientId,
   getCachedClientId,
+  cacheSessionId,
+  getCachedSessionId,
   cacheAsymmetricKeys,
   getCachedAsymmetricKeys,
 } from '../../caching';
@@ -79,11 +81,13 @@ class App extends Component {
     updateGlobalStates({ ws });
 
     ws.addEventListener('open', () => {
+      console.log();
       sendWS(ws, {
         type: 'client-id',
         data: {
           publicKey: globalStates.publicKey,
-          cachedClientId: getCachedClientId()
+          cachedClientId: getCachedClientId(),
+          cachedSessionId: getCachedSessionId()
         }
       });
     });
@@ -144,11 +148,15 @@ class App extends Component {
   }
 
   onMessageClientId(data) {
-    globalStates.clientId = data;
+    const { clientId, sessionId } = data;
+
+    globalStates.clientId = clientId;
     this.setState({
       loaded: true
     });
-    cacheClientId(globalStates.clientId);
+
+    cacheClientId(clientId);
+    cacheSessionId(sessionId);
   }
 
   onMessageShare(data) {

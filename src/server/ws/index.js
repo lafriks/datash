@@ -1,4 +1,5 @@
 const WebSocket = require('ws');
+const uuid = require('uuid/v4');
 const logger = require('../logger');
 const { sendWS } = require('../helper');
 
@@ -20,22 +21,34 @@ const handleWSConn = (wsConn, req) => {
 
   wsConn.on('close', () => {
     logger.info(`Closed ${wsConn.clientId}`);
-
-    if (connMap.has(wsConn.clientId)) {
-      connMap.delete(wsConn.clientId);
-    }
+    disposeConn(wsConn);
   });
 
   wsConn.on('error', (err) => {
     logger.error(err);
     wsConn.terminate();
-
-    if (connMap.has(wsConn.clientId)) {
-      connMap.delete(wsConn.clientId);
-    }
+    disposeConn(wsConn);
   });
 
   sendHeartbeat(wsConn, 'Are you alive?');
+};
+
+const disposeConn = (wsConn) => {
+  const { clientId } = wsConn;
+
+  if (!connMap.has(clientId)) {
+    return;
+  }
+
+  const wsConns = connMap.get(clientId);
+  const connIdx = wsConns.findIndex(elem => elem === wsConn);
+  if (connIdx !== -1) {
+    wsConns.splice(connIdx, 1);
+  }
+
+  if (!wsConns.length) {
+    connMap.delete(clientId);
+  }
 };
 
 const handleMessage = (wsConn, type, data) => {
@@ -70,17 +83,40 @@ const sendHeartbeat = (wsConn, message) => {
 };
 
 const onMessageClientId = (wsConn, data) => {
-  const { publicKey, cachedClientId } = data;
+  const { publicKey, cachedClientId, cachedSessionId } = data;
 
-  const clientId = cachedClientId && !connMap.has(cachedClientId) ? cachedClientId : generateClientId();
-  connMap.set(clientId, wsConn);
+  let clientId;
+  let sessionId;
+
+  if (!connMap.has(cachedClientId)) {
+    clientId = cachedClientId || generateClientId();
+    sessionId = cachedSessionId || generateSessionId();
+    connMap.set(clientId, [wsConn]);
+  } else {
+    const existingWsConns = connMap.get(cachedClientId);
+    const existingSessionId = existingWsConns[0].sessionId;
+
+    if (existingSessionId === cachedSessionId) {
+      clientId = cachedClientId;
+      sessionId = existingSessionId;
+      existingWsConns.push(wsConn);
+    } else {
+      clientId = generateClientId();
+      sessionId = generateSessionId();
+      connMap.set(clientId, [wsConn]);
+    }
+  }
 
   wsConn.clientId = clientId;
+  wsConn.sessionId = sessionId;
   wsConn.publicKey = publicKey;
 
   sendWS(wsConn, {
     type: 'client-id',
-    data: clientId
+    data: {
+      clientId,
+      sessionId
+    }
   });
 };
 
@@ -90,6 +126,8 @@ const onShareConfirm = (wsConn, data) => {
     sharingConfirmationMap.delete(data);
   }
 };
+
+const generateSessionId = () => uuid();
 
 const generateClientId = () => {
   let nextClientId;
