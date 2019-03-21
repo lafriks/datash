@@ -1,11 +1,15 @@
 const express = require('express');
 const HttpStatus = require('http-status-codes');
 const uuid = require('uuid/v4');
+const basicAuth = require('express-basic-auth');
 const { sendWS, wrapAsyncMiddleware } = require('../../../helper');
 
 const router = express.Router();
+const { API_CRED_USER, API_CRED_PASS } = process.env;
+const apiCred = API_CRED_USER && API_CRED_PASS ? { [API_CRED_USER]: API_CRED_PASS } : {};
+const basicAuthConfig = { users: apiCred, challenge: true };
 
-router.get('/', wrapAsyncMiddleware(async (req, res) => {
+router.get('/', basicAuth(basicAuthConfig), wrapAsyncMiddleware(async (req, res) => {
   const { connMap } = global;
 
   const data = [];
