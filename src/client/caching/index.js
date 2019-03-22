@@ -47,3 +47,9 @@ const isValidAsymmetricKeys = (keyPair) => {
 
   return true;
 };
+
+export const cacheRecipientId = (recipientId) => {
+  localStorage.setItem('recipientId', recipientId);
+};
+
+export const getCachedRecipientId = () => localStorage.getItem('recipientId');

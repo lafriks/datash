@@ -150,7 +150,8 @@ class ReceivedPanel extends Component {
               >
                 <List.Item.Meta
                   avatar={this.itemAvatar(item)}
-                  description={<span className="item-name">{this.getItemName(item)}</span>}
+                  title={<span className="item-name">{this.getItemName(item)}</span>}
+                  description={<span className="item-from">{item.from}</span>}
                 />
               </List.Item>
             )}

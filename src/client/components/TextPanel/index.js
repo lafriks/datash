@@ -149,24 +149,28 @@ class TextPanel extends Component {
       <div className="text-panel" style={style}>
         <div className="text-panel-wrapper">
           <div className="inputs-container">
-            <TextArea
-              value={textAreaVal}
-              className="input-textarea"
-              autosize={false}
-              placeholder="Paste or write your text to send"
-              onChange={this.onChangeTextAreaVal}
-              disabled={isSharing}
-            />
-            <Input
-              className="input-recipient-id"
-              addonBefore="Recipient ID"
-              placeholder="Enter recipient ID"
-              allowClear
-              value={recipientId}
-              onChange={this.onChangeRecipientVal}
-              disabled={isSharing}
-              onPressEnter={() => this.onShare()}
-            />
+            <div className="input-textarea-container">
+              <TextArea
+                value={textAreaVal}
+                className="input-textarea"
+                autosize={false}
+                placeholder="Paste or write your text to send"
+                onChange={this.onChangeTextAreaVal}
+                disabled={isSharing}
+              />
+            </div>
+            <div className="input-recipient-id-container">
+              <Input
+                className="input-recipient-id"
+                addonBefore="Recipient ID"
+                placeholder="Enter recipient ID"
+                allowClear
+                value={recipientId}
+                onChange={this.onChangeRecipientVal}
+                disabled={isSharing}
+                onPressEnter={() => this.onShare()}
+              />
+            </div>
           </div>
           <ShareActions
             onReset={this.onReset}

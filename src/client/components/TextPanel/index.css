@@ -19,13 +19,18 @@
   flex-direction: column;
 }
 
-.text-panel .text-panel-wrapper .inputs-container .input-textarea {
+.text-panel .text-panel-wrapper .inputs-container .input-textarea-container {
   flex: 1;
-  resize: none;
   margin-bottom: 20px;
 }
 
-.text-panel .text-panel-wrapper .inputs-container .input-recipient-id .ant-input-suffix {
+.text-panel .text-panel-wrapper .inputs-container .input-textarea-container .input-textarea {
+  width: 100%;
+  height: 100%;
+  resize: none;
+}
+
+.text-panel .text-panel-wrapper .inputs-container .input-recipient-id-container .input-recipient-id .ant-input-suffix {
   color: #ccc;
 }
 

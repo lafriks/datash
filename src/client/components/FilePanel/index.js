@@ -2,11 +2,13 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import {
-  Upload, Icon, Input, message
+  Upload, Icon, Input, message, Checkbox
 } from 'antd';
 import './index.css';
 import ShareActions from '../ShareActions';
-import { formatRecipientId, blobToArrayBuffer, bytesToHumanReadableString } from '../../helper';
+import {
+  formatRecipientId, blobToArrayBuffer, bytesToHumanReadableString, makeZip
+} from '../../helper';
 import { sendBtnDefaultText, MaxDataSizeCanSendAtOnce, RecipientIdMaxLength } from '../../constants';
 import globalStates from '../../global-states';
 import {
@@ -25,12 +27,14 @@ class FilePanel extends Component {
     this.state = {
       fileList: [],
       isSharing: false,
-      sendBtnText: sendBtnDefaultText
+      sendBtnText: sendBtnDefaultText,
+      sendAsZip: false
     };
 
     this.onChangeRecipientVal = this.onChangeRecipientVal.bind(this);
     this.onReset = this.onReset.bind(this);
     this.onShare = this.onShare.bind(this);
+    this.onChangeSendAsZip = this.onChangeSendAsZip.bind(this);
   }
 
   onChangeRecipientVal(evt) {
@@ -40,6 +44,12 @@ class FilePanel extends Component {
     if (newRecipientId.length <= RecipientIdMaxLength) {
       onChangeRecipientId(newRecipientId);
     }
+  }
+
+  onChangeSendAsZip(evt) {
+    this.setState({
+      sendAsZip: evt.target.checked
+    });
   }
 
   onReset() {
@@ -73,17 +83,33 @@ class FilePanel extends Component {
 
     this.setState({
       isSharing: true,
-      sendBtnText: 'Encrypting...'
+      sendBtnText: 'Fetching Key...'
     });
 
     axios.get(`/api/v1/clients/${encodeURIComponent(recipientId)}/publicKey`)
-      .then(({ data: { publicKey } }) => Promise.all([
-        publicKey,
-        Promise.all(fileList.map(file => Promise.all([
-          { name: file.name, mimeType: file.type || 'application/octet-stream', size: `${file.size}` },
-          blobToArrayBuffer(file)
-        ])))
-      ]))
+      .then(({ data: { publicKey } }) => {
+        this.setState({
+          sendBtnText: 'Archiving...'
+        });
+
+        return Promise.all([
+          publicKey,
+          this.resolveFileList()
+        ]);
+      })
+      .then(([publicKey, resolvedFileList]) => {
+        this.setState({
+          sendBtnText: 'Encrypting...'
+        });
+
+        return Promise.all([
+          publicKey,
+          Promise.all(resolvedFileList.map(file => Promise.all([
+            { name: file.name, mimeType: file.type || 'application/octet-stream', size: `${file.size}` },
+            blobToArrayBuffer(file)
+          ])))
+        ]);
+      })
       .then(([publicKey, arrayBufferResults]) => Promise.all([
         encryptAsymmetric(publicKey, bytesToText(globalStates.symmetricEncKey)),
         Promise.all(
@@ -142,9 +168,25 @@ class FilePanel extends Component {
       });
   }
 
+  resolveFileList() {
+    const { fileList, sendAsZip } = this.state;
+
+    return new Promise((res, rej) => {
+      if (sendAsZip) {
+        makeZip(fileList)
+          .then(zipFile => res([zipFile]))
+          .catch(err => rej(err));
+      } else {
+        res(fileList);
+      }
+    });
+  }
+
   render() {
     const { style, recipientId } = this.props;
-    const { fileList, isSharing, sendBtnText } = this.state;
+    const {
+      fileList, isSharing, sendBtnText, sendAsZip
+    } = this.state;
 
     const draggerProps = {
       multiple: true,
@@ -187,16 +229,21 @@ class FilePanel extends Component {
                 </Dragger>
               </div>
             </div>
-            <Input
-              className="input-recipient-id"
-              addonBefore="Recipient ID"
-              placeholder="Enter recipient ID"
-              allowClear
-              value={recipientId}
-              onChange={this.onChangeRecipientVal}
-              disabled={isSharing}
-              onPressEnter={() => this.onShare()}
-            />
+            <div className="send-as-zip-checkbox-container">
+              <Checkbox onChange={this.onChangeSendAsZip} checked={sendAsZip}>Send as Zip</Checkbox>
+            </div>
+            <div className="input-recipient-id-container">
+              <Input
+                className="input-recipient-id"
+                addonBefore="Recipient ID"
+                placeholder="Enter recipient ID"
+                allowClear
+                value={recipientId}
+                onChange={this.onChangeRecipientVal}
+                disabled={isSharing}
+                onPressEnter={() => this.onShare()}
+              />
+            </div>
           </div>
           <ShareActions
             onReset={this.onReset}

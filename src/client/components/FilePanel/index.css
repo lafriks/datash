@@ -22,10 +22,15 @@
 .file-panel .file-panel-wrapper .inputs-container .file-dragger-container {
   flex: 1;
   overflow: scroll;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
-.file-panel .file-panel-wrapper .inputs-container .input-recipient-id .ant-input-suffix {
+.file-panel .file-panel-wrapper .inputs-container .send-as-zip-checkbox-container {
+  text-align: right;
+  margin: 0 0 10px 0;
+}
+
+.file-panel .file-panel-wrapper .inputs-container .input-recipient-id-container .input-recipient-id .ant-input-suffix {
   color: #ccc;
 }
 

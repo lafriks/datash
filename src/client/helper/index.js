@@ -1,4 +1,4 @@
-import aesjs from 'aes-js';
+import JSZip from 'jszip';
 
 const charSet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz*&-%/!?*+=()';
 
@@ -69,4 +69,32 @@ export const bytesToHumanReadableString = (bytes) => {
   } while (Math.abs(bytes) >= thresh && unitIdx < units.length - 1);
 
   return `${Number.parseFloat(bytes.toFixed(1))} ${units[unitIdx]}`;
+};
+
+export const makeZip = async (fileList, outFileName = 'Archive.zip') => {
+  const fileNameSet = new Set();
+  const zip = new JSZip();
+
+  fileList.forEach((file) => {
+    const fileName = getResolvedFileName(file.name, fileNameSet);
+    zip.file(fileName, file);
+    fileNameSet.add(fileName);
+  });
+
+  const zipBlob = await zip.generateAsync({ type: 'blob' });
+  zipBlob.name = outFileName;
+
+  return zipBlob;
+};
+
+const getResolvedFileName = (fileName, fileNameSet) => {
+  let i = 1;
+  const ext = extractFileExt(fileName);
+  const nameWithoutExt = extractFileNameWithoutExt(fileName);
+
+  while (fileNameSet.has(fileName)) {
+    fileName = ext ? `${nameWithoutExt}-${i++}.${ext}` : `${nameWithoutExt}-${i++}`;
+  }
+
+  return fileName;
 };

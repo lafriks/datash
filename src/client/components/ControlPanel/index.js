@@ -7,6 +7,7 @@ import TextPanel from '../TextPanel';
 import FilePanel from '../FilePanel';
 import ReceivedPanel from '../ReceivedPanel';
 import { displayStyle } from '../../helper';
+import { cacheRecipientId, getCachedRecipientId } from '../../caching';
 
 const tabList = [
   {
@@ -28,7 +29,7 @@ class ControlPanel extends React.Component {
     super(props);
 
     this.state = {
-      recipientId: ''
+      recipientId: getCachedRecipientId() || ''
     };
 
     this.onChangeRecipientId = this.onChangeRecipientId.bind(this);
@@ -38,6 +39,8 @@ class ControlPanel extends React.Component {
     this.setState({
       recipientId: newVal
     });
+
+    cacheRecipientId(newVal);
   }
 
   render() {

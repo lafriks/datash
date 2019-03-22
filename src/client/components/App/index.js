@@ -81,7 +81,6 @@ class App extends Component {
     updateGlobalStates({ ws });
 
     ws.addEventListener('open', () => {
-      console.log();
       sendWS(ws, {
         type: 'client-id',
         data: {
@@ -213,6 +212,7 @@ class App extends Component {
             ...state.receivedData,
             ...resVals.map(([type, name, mimeType, size, content]) => ({
               id: uuid(),
+              from,
               type,
               name,
               mimeType,
