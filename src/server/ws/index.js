@@ -89,8 +89,8 @@ const onMessageClientId = (wsConn, data) => {
   let sessionId;
 
   if (!connMap.has(cachedClientId)) {
-    clientId = cachedClientId || generateClientId();
-    sessionId = cachedSessionId || generateSessionId();
+    clientId = validateClientId(cachedClientId) || generateClientId();
+    sessionId = validateSessionId(cachedSessionId) || generateSessionId();
     connMap.set(clientId, [wsConn]);
   } else {
     const existingWsConns = connMap.get(cachedClientId);
@@ -149,6 +149,30 @@ const genNextClientId = (length) => {
   }
 
   return key;
+};
+
+const validateClientId = (clientId) => {
+  if (!clientId) {
+    return null;
+  }
+
+  if (clientId.match(/^\d{4}$/)) {
+    return clientId;
+  }
+
+  return null;
+};
+
+const validateSessionId = (sessionId) => {
+  if (!sessionId) {
+    return null;
+  }
+
+  if (sessionId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)) {
+    return sessionId;
+  }
+
+  return null;
 };
 
 module.exports = {
