@@ -10,7 +10,7 @@ router.post('/', wrapAsyncMiddleware(async (req, res) => {
     rating, ratingLabel, suggestions, userAgent, clientId
   } = req.body;
 
-  const clientIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  const clientIP = req.connection.remoteAddress;
   const address = await fetchAddressFromIP(clientIP);
 
   const feedback = new Feedback({
