@@ -126,7 +126,7 @@ class App extends Component {
   handleWSMessage(type, data) {
     switch (type) {
       case 'heartbeat':
-        this.onHeartbeat(data);
+        this.onMessageHeartbeat(data);
         break;
       case 'client-id':
         this.onMessageClientId(data);
@@ -134,12 +134,15 @@ class App extends Component {
       case 'share':
         this.onMessageShare(data);
         break;
+      case 'progress':
+        this.onMessageProgress(data);
+        break;
       default:
         break;
     }
   }
 
-  onHeartbeat() {
+  onMessageHeartbeat() {
     sendWS(globalStates.ws, {
       type: 'heartbeat',
       data: 'Yes, I am alive'
@@ -160,7 +163,7 @@ class App extends Component {
 
   onMessageShare(data) {
     const {
-      from, encKey, data: dataArr, sharingConfirmationId
+      progressId, from, encKey, data: dataArr, sharingConfirmationId
     } = data;
 
     if (sharingConfirmationId) {
@@ -174,11 +177,11 @@ class App extends Component {
       return;
     }
 
-    const notificationId = uuid();
+    const notificationId = progressId;
     notification.open({
       key: notificationId,
       duration: 0,
-      message: 'New Data',
+      message: `Received data from ${from}`,
       description: 'Decrypting...',
       icon: <Icon type="loading" style={{ color: '#1890ff' }} />
     });
@@ -240,6 +243,21 @@ class App extends Component {
           icon: <Icon type="close-circle" style={{ color: 'rgb(245, 38, 50)' }} />
         });
       });
+  }
+
+  onMessageProgress(data) {
+    const {
+      progressId, from, message, error
+    } = data;
+
+    notification.open({
+      key: progressId,
+      duration: !error ? 0 : 4.5,
+      message: !error ? `Receiving data from ${from}` : 'Error',
+      description: message,
+      icon: !error ? (<Icon type="loading" style={{ color: '#1890ff' }} />)
+        : (<Icon type="close-circle" style={{ color: 'rgb(245, 38, 50)' }} />)
+    });
   }
 
   render() {

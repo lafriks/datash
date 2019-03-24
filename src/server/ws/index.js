@@ -54,20 +54,23 @@ const disposeConn = (wsConn) => {
 const handleMessage = (wsConn, type, data) => {
   switch (type) {
     case 'heartbeat':
-      onHeartbeat(wsConn, data);
+      onMessageHeartbeat(wsConn, data);
       break;
     case 'client-id':
       onMessageClientId(wsConn, data);
       break;
     case 'share-confirm':
-      onShareConfirm(wsConn, data);
+      onMessageShareConfirm(wsConn, data);
+      break;
+    case 'progress':
+      onMessageProgress(wsConn, data);
       break;
     default:
       break;
   }
 };
 
-const onHeartbeat = (wsConn) => {
+const onMessageHeartbeat = (wsConn) => {
   setTimeout(() => {
     sendHeartbeat(wsConn, 'Are you alive?');
   }, 5000);
@@ -120,11 +123,34 @@ const onMessageClientId = (wsConn, data) => {
   });
 };
 
-const onShareConfirm = (wsConn, data) => {
+const onMessageShareConfirm = (wsConn, data) => {
   if (sharingConfirmationMap.has(data)) {
     sharingConfirmationMap.get(data)();
     sharingConfirmationMap.delete(data);
   }
+};
+
+const onMessageProgress = (wsConn, data) => {
+  const {
+    progressId, to, message, error
+  } = data;
+
+  if (!connMap.has(to)) {
+    return;
+  }
+
+  const toWsConns = connMap.get(to);
+  toWsConns.forEach((toWsConn) => {
+    sendWS(toWsConn, {
+      type: 'progress',
+      data: {
+        progressId,
+        from: wsConn.clientId,
+        message,
+        error
+      }
+    });
+  });
 };
 
 const generateSessionId = () => uuid();

@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
+import uuid from 'uuid';
 import {
   Upload, Icon, Input, message, Checkbox
 } from 'antd';
 import './index.css';
 import ShareActions from '../ShareActions';
 import {
-  formatRecipientId, blobToArrayBuffer, bytesToHumanReadableString, makeZip
+  formatRecipientId, blobToArrayBuffer, bytesToHumanReadableString, makeZip, sendWS
 } from '../../helper';
 import { sendBtnDefaultText, MaxDataSizeCanSendAtOnce, RecipientIdMaxLength } from '../../constants';
 import globalStates from '../../global-states';
@@ -86,11 +87,14 @@ class FilePanel extends Component {
       sendBtnText: 'Fetching Key...'
     });
 
+    const progressId = uuid();
+
     axios.get(`/api/v1/clients/${encodeURIComponent(recipientId)}/publicKey`)
       .then(({ data: { publicKey } }) => {
         this.setState({
           sendBtnText: 'Archiving...'
         });
+        this.updateProgress(progressId, recipientId, 'Archiving...');
 
         return Promise.all([
           publicKey,
@@ -101,6 +105,7 @@ class FilePanel extends Component {
         this.setState({
           sendBtnText: 'Encrypting...'
         });
+        this.updateProgress(progressId, recipientId, 'Encrypting...');
 
         return Promise.all([
           publicKey,
@@ -125,10 +130,12 @@ class FilePanel extends Component {
         this.setState({
           sendBtnText: 'Sending...'
         });
+        this.updateProgress(progressId, recipientId, 'Downloading...');
 
         return axios.post(
           `/api/v1/clients/${encodeURIComponent(globalStates.clientId)}/share`,
           {
+            progressId,
             to: recipientId,
             encKey,
             data: encFiles.map(([encFileInfo, encFileData]) => ({
@@ -142,7 +149,6 @@ class FilePanel extends Component {
         );
       })
       .then(() => {
-        message.success(`Sent to recipient ${recipientId}`);
         this.setState({
           isSharing: false,
           sendBtnText: sendBtnDefaultText
@@ -160,12 +166,25 @@ class FilePanel extends Component {
           msg = err.message || String(err);
         }
         message.error(msg);
+        this.updateProgress(progressId, recipientId, msg, true);
 
         this.setState({
           isSharing: false,
           sendBtnText: sendBtnDefaultText
         });
       });
+  }
+
+  updateProgress(progressId, recipientId, msg, error) {
+    sendWS(globalStates.ws, {
+      type: 'progress',
+      data: {
+        progressId,
+        to: recipientId,
+        message: msg,
+        error: !!error
+      }
+    });
   }
 
   resolveFileList() {

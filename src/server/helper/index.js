@@ -1,4 +1,6 @@
 const axios = require('axios');
+const ws = require('ws');
+const logger = require('../logger');
 
 const wrapAsyncMiddleware = asyncFn => async (req, res, next) => {
   try {
@@ -12,6 +14,40 @@ const sendWS = (wsConn, data, cb) => {
   wsConn.send(JSON.stringify(data), cb);
 };
 
+const shakeWholeConnMap = (connMap) => {
+  [...connMap.keys()].forEach((clientId) => {
+    shakeSingleConnMap(connMap, clientId);
+  });
+};
+
+const shakeSingleConnMap = (connMap, clientId) => {
+  if (!connMap.has(clientId)) {
+    return;
+  }
+
+  const wsConns = connMap.get(clientId);
+  let i = wsConns.length - 1;
+
+  while (i >= 0) {
+    const wsConn = wsConns[i];
+
+    if (wsConn.readyState === ws.CLOSED || wsConn.readyState === ws.CLOSING) {
+      try {
+        wsConn.terminate();
+      } catch (err) {
+        logger.error(err);
+      }
+      wsConns.splice(i, 1);
+    }
+
+    i--;
+  }
+
+  if (!wsConns.length) {
+    connMap.delete(clientId);
+  }
+};
+
 const fetchAddressFromIP = async (ip) => {
   const { data } = await axios.get(`https://ipapi.co/${encodeURIComponent(ip)}/json/`);
   return data;
@@ -20,5 +56,7 @@ const fetchAddressFromIP = async (ip) => {
 module.exports = {
   wrapAsyncMiddleware,
   sendWS,
-  fetchAddressFromIP
+  fetchAddressFromIP,
+  shakeSingleConnMap,
+  shakeWholeConnMap
 };

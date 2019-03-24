@@ -2,7 +2,9 @@ const express = require('express');
 const HttpStatus = require('http-status-codes');
 const uuid = require('uuid/v4');
 const basicAuth = require('express-basic-auth');
-const { sendWS, wrapAsyncMiddleware } = require('../../../helper');
+const {
+  sendWS, wrapAsyncMiddleware, shakeWholeConnMap, shakeSingleConnMap
+} = require('../../../helper');
 
 const router = express.Router();
 const { API_CRED_USER, API_CRED_PASS } = process.env;
@@ -11,6 +13,8 @@ const basicAuthConfig = { users: apiCred, challenge: true };
 
 router.get('/', basicAuth(basicAuthConfig), wrapAsyncMiddleware(async (req, res) => {
   const { connMap } = global;
+
+  shakeWholeConnMap(connMap);
 
   const data = [];
   connMap.forEach((wsConns, clientId) => {
@@ -27,6 +31,8 @@ router.get('/', basicAuth(basicAuthConfig), wrapAsyncMiddleware(async (req, res)
 router.get('/:clientId/publicKey', wrapAsyncMiddleware(async (req, res) => {
   const { connMap } = global;
   const { clientId } = req.params;
+
+  shakeSingleConnMap(connMap, clientId);
 
   if (!connMap.has(clientId)) {
     res.status(HttpStatus.NOT_FOUND)
@@ -45,7 +51,12 @@ router.get('/:clientId/publicKey', wrapAsyncMiddleware(async (req, res) => {
 router.post('/:clientId/share', wrapAsyncMiddleware(async (req, res) => {
   const { connMap } = global;
   const { clientId } = req.params;
-  const { to: toClientId, encKey, data } = req.body;
+  const {
+    progressId, to: toClientId, encKey, data
+  } = req.body;
+
+  shakeSingleConnMap(connMap, clientId);
+  shakeSingleConnMap(connMap, toClientId);
 
   if (!connMap.has(clientId)) {
     res.status(HttpStatus.NOT_FOUND)
@@ -65,7 +76,7 @@ router.post('/:clientId/share', wrapAsyncMiddleware(async (req, res) => {
 
   const toWSConns = connMap.get(toClientId);
   try {
-    await shareDataViaWS(toWSConns, clientId, encKey, data);
+    await shareDataViaWS(toWSConns, progressId, clientId, encKey, data);
     res.status(HttpStatus.OK)
       .json({
         message: 'shared'
@@ -78,7 +89,7 @@ router.post('/:clientId/share', wrapAsyncMiddleware(async (req, res) => {
   }
 }));
 
-const shareDataViaWS = (toWSConns, from, encKey, data) => new Promise((res, rej) => {
+const shareDataViaWS = (toWSConns, progressId, from, encKey, data) => new Promise((res, rej) => {
   const sharingConfirmationId = uuid();
 
   toWSConns.forEach((toWSConn) => {
@@ -87,6 +98,7 @@ const shareDataViaWS = (toWSConns, from, encKey, data) => new Promise((res, rej)
       {
         type: 'share',
         data: {
+          progressId,
           from,
           encKey,
           data,

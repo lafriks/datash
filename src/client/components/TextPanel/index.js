@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import { Input, message } from 'antd';
+import uuid from 'uuid';
 import './index.css';
 import ShareActions from '../ShareActions';
 import {
@@ -10,7 +11,7 @@ import {
   textToBytesAsync,
   bytesToText
 } from '../../encryption';
-import { formatRecipientId, bytesToHumanReadableString } from '../../helper';
+import { formatRecipientId, bytesToHumanReadableString, sendWS } from '../../helper';
 import globalStates from '../../global-states';
 import { sendBtnDefaultText, MaxDataSizeCanSendAtOnce, RecipientIdMaxLength } from '../../constants';
 
@@ -77,14 +78,24 @@ class TextPanel extends Component {
 
     this.setState({
       isSharing: true,
-      sendBtnText: 'Encrypting...'
+      sendBtnText: 'Fetching Key...'
     });
 
+    const progressId = uuid();
+
     axios.get(`/api/v1/clients/${encodeURIComponent(recipientId)}/publicKey`)
-      .then(({ data: { publicKey } }) => Promise.all([
-        publicKey,
-        textToBytesAsync(textAreaVal)
-      ]))
+      .then(({ data: { publicKey } }) => {
+        this.setState({
+          isSharing: true,
+          sendBtnText: 'Encrypting...'
+        });
+        this.updateProgress(progressId, recipientId, 'Encrypting...');
+
+        return Promise.all([
+          publicKey,
+          textToBytesAsync(textAreaVal)
+        ]);
+      })
       .then(([publicKey, dataBytes]) => {
         const encKey = encryptAsymmetric(publicKey, bytesToText(globalStates.symmetricEncKey));
         return Promise.all([
@@ -96,10 +107,12 @@ class TextPanel extends Component {
         this.setState({
           sendBtnText: 'Sending...'
         });
+        this.updateProgress(progressId, recipientId, 'Downloading...');
 
         return axios.post(
           `/api/v1/clients/${encodeURIComponent(globalStates.clientId)}/share`,
           {
+            progressId,
             to: recipientId,
             encKey,
             data: [
@@ -133,12 +146,25 @@ class TextPanel extends Component {
           msg = err.message || String(err);
         }
         message.error(msg);
+        this.updateProgress(progressId, recipientId, msg, true);
 
         this.setState({
           isSharing: false,
           sendBtnText: sendBtnDefaultText
         });
       });
+  }
+
+  updateProgress(progressId, recipientId, msg, error) {
+    sendWS(globalStates.ws, {
+      type: 'progress',
+      data: {
+        progressId,
+        to: recipientId,
+        message: msg,
+        error: !!error
+      }
+    });
   }
 
   render() {
