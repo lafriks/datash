@@ -3,7 +3,7 @@ const HttpStatus = require('http-status-codes');
 const uuid = require('uuid/v4');
 const basicAuth = require('express-basic-auth');
 const {
-  sendWS, wrapAsyncMiddleware, shakeWholeConnMap, shakeSingleConnMap
+  sendWS, wrapAsyncMiddleware, shakeWholeConnMap, shakeSingleConnMap, extractClientIp, fetchAddressFromIP
 } = require('../../../helper');
 
 const router = express.Router();
@@ -16,16 +16,23 @@ router.get('/', basicAuth(basicAuthConfig), wrapAsyncMiddleware(async (req, res)
 
   shakeWholeConnMap(connMap);
 
-  const data = [];
-  connMap.forEach((wsConns, clientId) => {
-    data.push({
-      clientId,
-      publicKey: wsConns[0].publicKey
-    });
+  const allPromises = [];
+  connMap.forEach((wsConns) => {
+    const wsConn = wsConns[0];
+    allPromises.push(Promise.all([
+      { clientId: wsConn.clientId },
+      fetchAddressFromIP(extractClientIp(wsConn.req))
+    ]));
   });
 
+  const data = (await Promise.all(allPromises)).map(([meta, address]) => {
+    meta.address = address;
+    return meta;
+  });
+
+  res.setHeader('Content-Type', 'application/json');
   res.status(HttpStatus.OK)
-    .json(data);
+    .end(JSON.stringify(data, null, 2));
 }));
 
 router.get('/:clientId/publicKey', wrapAsyncMiddleware(async (req, res) => {

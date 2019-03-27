@@ -1,14 +1,16 @@
 const WebSocket = require('ws');
 const uuid = require('uuid/v4');
 const logger = require('../logger');
-const { sendWS } = require('../helper');
+const { sendWS, extractClientIp } = require('../helper');
 
 const charSet = '0123456789';
 const connMap = global.connMap = new Map();
 const sharingConfirmationMap = global.sharingConfirmationMap = new Map();
 
 const handleWSConn = (wsConn, req) => {
-  logger.info(`WS ${req.connection.remoteAddress}`);
+  logger.info(`WS ${extractClientIp(req)}`);
+
+  wsConn.req = req;
 
   wsConn.on('message', (message) => {
     try {

@@ -53,10 +53,16 @@ const fetchAddressFromIP = async (ip) => {
   return data;
 };
 
+const extractClientIp = (req) => {
+  const clientIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  return clientIP.split(',')[0].trim();
+};
+
 module.exports = {
   wrapAsyncMiddleware,
   sendWS,
   fetchAddressFromIP,
   shakeSingleConnMap,
-  shakeWholeConnMap
+  shakeWholeConnMap,
+  extractClientIp
 };
