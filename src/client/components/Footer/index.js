@@ -11,7 +11,7 @@ const Footer = () => (
         target="_blank"
       >
         <img
-          src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=148864&theme=light"
+          src={`https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=148864&theme=light&t=${Date.now()}`}
           alt="Datash - Send and receive files with end-to-end encryption | Product Hunt Embed"
           style={{ width: 200 }}
         />
