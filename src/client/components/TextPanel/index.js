@@ -83,7 +83,7 @@ class TextPanel extends Component {
 
     const progressId = uuid();
 
-    axios.get(`/api/v1/clients/${encodeURIComponent(recipientId)}/publicKey`)
+    axios.get(`/api/v1/clients/${encodeURIComponent(recipientId)}/meta`)
       .then(({ data: { publicKey } }) => {
         this.setState({
           isSharing: true,

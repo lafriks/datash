@@ -98,3 +98,5 @@ const getResolvedFileName = (fileName, fileNameSet) => {
 
   return fileName;
 };
+
+export const isWebRTCSupported = () => !!window.RTCPeerConnection;

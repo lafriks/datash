@@ -4,7 +4,7 @@ import uuid from 'uuid/v4';
 import './index.css';
 import Loader from '../Loader';
 import Content from '../Content';
-import { sendWS, arrayBufferToBlob } from '../../helper';
+import { sendWS, arrayBufferToBlob, isWebRTCSupported } from '../../helper';
 import globalStates, { updateGlobalStates } from '../../global-states';
 import {
   generateAsymmetricKeyPair,
@@ -82,11 +82,12 @@ class App extends Component {
 
     ws.addEventListener('open', () => {
       sendWS(ws, {
-        type: 'client-id',
+        type: 'register',
         data: {
           publicKey: globalStates.publicKey,
           cachedClientId: getCachedClientId(),
-          cachedSessionId: getCachedSessionId()
+          cachedSessionId: getCachedSessionId(),
+          isWebRTCSupported: isWebRTCSupported()
         }
       });
     });
@@ -128,8 +129,8 @@ class App extends Component {
       case 'heartbeat':
         this.onMessageHeartbeat(data);
         break;
-      case 'client-id':
-        this.onMessageClientId(data);
+      case 'register':
+        this.onMessageRegister(data);
         break;
       case 'share':
         this.onMessageShare(data);
@@ -149,7 +150,7 @@ class App extends Component {
     });
   }
 
-  onMessageClientId(data) {
+  onMessageRegister(data) {
     const { clientId, sessionId } = data;
 
     globalStates.clientId = clientId;

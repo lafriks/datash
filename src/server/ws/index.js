@@ -58,8 +58,8 @@ const handleMessage = (wsConn, type, data) => {
     case 'heartbeat':
       onMessageHeartbeat(wsConn, data);
       break;
-    case 'client-id':
-      onMessageClientId(wsConn, data);
+    case 'register':
+      onMessageRegister(wsConn, data);
       break;
     case 'share-confirm':
       onMessageShareConfirm(wsConn, data);
@@ -87,8 +87,10 @@ const sendHeartbeat = (wsConn, message) => {
   }
 };
 
-const onMessageClientId = (wsConn, data) => {
-  const { publicKey, cachedClientId, cachedSessionId } = data;
+const onMessageRegister = (wsConn, data) => {
+  const {
+    publicKey, cachedClientId, cachedSessionId, isWebRTCSupported
+  } = data;
 
   let clientId;
   let sessionId;
@@ -115,9 +117,10 @@ const onMessageClientId = (wsConn, data) => {
   wsConn.clientId = clientId;
   wsConn.sessionId = sessionId;
   wsConn.publicKey = publicKey;
+  wsConn.isWebRTCSupported = isWebRTCSupported;
 
   sendWS(wsConn, {
-    type: 'client-id',
+    type: 'register',
     data: {
       clientId,
       sessionId

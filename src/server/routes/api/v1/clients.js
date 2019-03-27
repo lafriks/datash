@@ -20,7 +20,7 @@ router.get('/', basicAuth(basicAuthConfig), wrapAsyncMiddleware(async (req, res)
   connMap.forEach((wsConns) => {
     const wsConn = wsConns[0];
     allPromises.push(Promise.all([
-      { clientId: wsConn.clientId },
+      { clientId: wsConn.clientId, isWebRTCSupported: wsConn.isWebRTCSupported },
       fetchAddressFromIP(extractClientIp(wsConn.req))
     ]));
   });
@@ -35,7 +35,7 @@ router.get('/', basicAuth(basicAuthConfig), wrapAsyncMiddleware(async (req, res)
     .end(JSON.stringify(data, null, 2));
 }));
 
-router.get('/:clientId/publicKey', wrapAsyncMiddleware(async (req, res) => {
+router.get('/:clientId/meta', wrapAsyncMiddleware(async (req, res) => {
   const { connMap } = global;
   const { clientId } = req.params;
 
@@ -49,9 +49,12 @@ router.get('/:clientId/publicKey', wrapAsyncMiddleware(async (req, res) => {
     return;
   }
 
+  const wsConn = connMap.get(clientId)[0];
+
   res.status(HttpStatus.OK)
     .json({
-      publicKey: connMap.get(clientId)[0].publicKey
+      publicKey: wsConn.publicKey,
+      isWebRTCSupported: wsConn.isWebRTCSupported
     });
 }));
 
