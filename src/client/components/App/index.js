@@ -189,32 +189,14 @@ class App extends Component {
 
     const decKey = textToBytes(decryptAsymmetric(globalStates.privateKey, encKey));
 
-    Promise.all(dataArr.map(datum => Promise.all([
-      datum.type,
-      decryptObjectSymmetric(
-        decKey,
-        {
-          name: datum.name,
-          mimeType: datum.mimeType,
-          size: datum.size,
-          content: datum.encContent
-        }
-      )
-    ])))
-      .then(resVals => Promise.all(resVals.map(([type, {
-        name, mimeType, size, content
-      }]) => Promise.all([
-        type,
-        name ? bytesToText(name) : null,
-        mimeType ? bytesToText(mimeType) : null,
-        size ? +bytesToText(size) : null,
-        type === 'text' ? bytesToText(content) : arrayBufferToBlob(content.buffer)
-      ]))))
-      .then((resVals) => {
+    this.decryptReceivedData(dataArr, decKey)
+      .then((decryptedData) => {
         this.setState(state => ({
           receivedData: [
             ...state.receivedData,
-            ...resVals.map(([type, name, mimeType, size, content]) => ({
+            ...decryptedData.map(({
+              type, name, mimeType, size, content
+            }) => ({
               id: uuid(),
               from,
               type,
@@ -244,6 +226,25 @@ class App extends Component {
           icon: <Icon type="close-circle" style={{ color: 'rgb(245, 38, 50)' }} />
         });
       });
+  }
+
+  async decryptReceivedData(data, decKey) {
+    const decryptedData = await Promise.all(data.map(datum => Promise.all([datum.type, decryptObjectSymmetric(decKey, {
+      name: datum.name,
+      mimeType: datum.mimeType,
+      size: datum.size,
+      content: datum.encContent
+    })])));
+
+    return decryptedData.map(([type, {
+      name, mimeType, size, content
+    }]) => ({
+      type,
+      name: name ? bytesToText(name) : null,
+      mimeType: mimeType ? bytesToText(mimeType) : null,
+      size: size ? +bytesToText(size) : null,
+      content: type === 'text' ? bytesToText(content) : arrayBufferToBlob(content.buffer)
+    }));
   }
 
   onMessageProgress(data) {

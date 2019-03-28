@@ -8,7 +8,7 @@ import {
 import './index.css';
 import ShareActions from '../ShareActions';
 import {
-  formatRecipientId, blobToArrayBuffer, bytesToHumanReadableString, makeZip, sendWS
+  formatRecipientId, blobToArrayBuffer, bytesToHumanReadableString, makeZip, sendWS, isWebRTCSupported
 } from '../../helper';
 import { sendBtnDefaultText, MaxDataSizeCanSendAtOnce, RecipientIdMaxLength } from '../../constants';
 import globalStates from '../../global-states';
@@ -84,75 +84,20 @@ class FilePanel extends Component {
 
     this.setState({
       isSharing: true,
-      sendBtnText: 'Fetching Key...'
+      sendBtnText: 'Fetching meta...'
     });
 
     const progressId = uuid();
 
     axios.get(`/api/v1/clients/${encodeURIComponent(recipientId)}/meta`)
-      .then(({ data: { publicKey } }) => {
-        this.setState({
-          sendBtnText: 'Archiving...'
-        });
-        this.updateProgress(progressId, recipientId, 'Archiving...');
+      .then(({ data: { publicKey, isWebRTCSupported: isPeerWebRTCSupported } }) => {
+        const isCurrentWebRTCSupported = isWebRTCSupported();
 
-        return Promise.all([
-          publicKey,
-          this.resolveFileList()
-        ]);
-      })
-      .then(([publicKey, resolvedFileList]) => {
-        this.setState({
-          sendBtnText: 'Encrypting...'
-        });
-        this.updateProgress(progressId, recipientId, 'Encrypting...');
+        // if (isCurrentWebRTCSupported && isWebRTCSupported) {
+        //   return 23;
+        // }
 
-        return Promise.all([
-          publicKey,
-          Promise.all(resolvedFileList.map(file => Promise.all([
-            { name: file.name, mimeType: file.type || 'application/octet-stream', size: `${file.size}` },
-            blobToArrayBuffer(file)
-          ])))
-        ]);
-      })
-      .then(([publicKey, arrayBufferResults]) => Promise.all([
-        encryptAsymmetric(publicKey, bytesToText(globalStates.symmetricEncKey)),
-        Promise.all(
-          arrayBufferResults.map(([fileInfo, arrayBuffer]) => Promise.all(
-            [
-              encryptObjectSymmetric(globalStates.symmetricEncKey, fileInfo),
-              encryptSymmetric(globalStates.symmetricEncKey, new Uint8Array(arrayBuffer))
-            ]
-          ))
-        )
-      ]))
-      .then(([encKey, encFiles]) => {
-        this.setState({
-          sendBtnText: 'Sending...'
-        });
-        this.updateProgress(progressId, recipientId, 'Downloading...');
-
-        return axios.post(
-          `/api/v1/clients/${encodeURIComponent(globalStates.clientId)}/share`,
-          {
-            progressId,
-            to: recipientId,
-            encKey,
-            data: encFiles.map(([encFileInfo, encFileData]) => ({
-              type: 'file',
-              name: encFileInfo.name,
-              mimeType: encFileInfo.mimeType,
-              size: encFileInfo.size,
-              encContent: encFileData
-            }))
-          }
-        );
-      })
-      .then(() => {
-        this.setState({
-          isSharing: false,
-          sendBtnText: sendBtnDefaultText
-        });
+        return this.shareOverHttp(progressId, fileList, publicKey, recipientId);
       })
       .catch((err) => {
         let msg;
@@ -175,6 +120,55 @@ class FilePanel extends Component {
       });
   }
 
+  async shareOverHttp(progressId, fileList, publicKey, recipientId) {
+    this.setState({
+      sendBtnText: 'Archiving...'
+    });
+    this.updateProgress(progressId, recipientId, 'Archiving...');
+
+    const resolvedFileList = await this.resolveFileList(fileList);
+
+    this.setState({
+      sendBtnText: 'Encrypting...'
+    });
+    this.updateProgress(progressId, recipientId, 'Encrypting...');
+
+    const fileArrayBuffers = await Promise.all(resolvedFileList.map(file => Promise.all([
+      { name: file.name, mimeType: file.type || 'application/octet-stream', size: `${file.size}` },
+      blobToArrayBuffer(file)
+    ])));
+
+    const encFiles = await Promise.all(fileArrayBuffers.map(([fileInfo, arrayBuffer]) => Promise.all([
+      encryptObjectSymmetric(globalStates.symmetricEncKey, fileInfo),
+      encryptSymmetric(globalStates.symmetricEncKey, new Uint8Array(arrayBuffer))
+    ])));
+
+    const encKey = encryptAsymmetric(publicKey, bytesToText(globalStates.symmetricEncKey));
+
+    this.setState({
+      sendBtnText: 'Sending...'
+    });
+    this.updateProgress(progressId, recipientId, 'Downloading...');
+
+    await axios.post(`/api/v1/clients/${encodeURIComponent(globalStates.clientId)}/share`, {
+      progressId,
+      to: recipientId,
+      encKey,
+      data: encFiles.map(([encFileInfo, encFileData]) => ({
+        type: 'file',
+        name: encFileInfo.name,
+        mimeType: encFileInfo.mimeType,
+        size: encFileInfo.size,
+        encContent: encFileData
+      }))
+    });
+
+    this.setState({
+      isSharing: false,
+      sendBtnText: sendBtnDefaultText
+    });
+  }
+
   updateProgress(progressId, recipientId, msg, error) {
     sendWS(globalStates.ws, {
       type: 'progress',
@@ -187,18 +181,14 @@ class FilePanel extends Component {
     });
   }
 
-  resolveFileList() {
-    const { fileList, sendAsZip } = this.state;
+  async resolveFileList(fileList) {
+    const { sendAsZip } = this.state;
 
-    return new Promise((res, rej) => {
-      if (sendAsZip) {
-        makeZip(fileList)
-          .then(zipFile => res([zipFile]))
-          .catch(err => rej(err));
-      } else {
-        res(fileList);
-      }
-    });
+    if (sendAsZip) {
+      fileList = [await makeZip(fileList)];
+    }
+
+    return fileList;
   }
 
   render() {

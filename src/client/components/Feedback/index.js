@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import axios from 'axios';
 import {
   Rate, Input, Button, message
@@ -105,5 +106,9 @@ class Feedback extends React.Component {
     );
   }
 }
+
+Feedback.propTypes = {
+  history: PropTypes.instanceOf(Object).isRequired,
+};
 
 export default Feedback;

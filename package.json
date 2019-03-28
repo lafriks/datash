@@ -5,6 +5,7 @@
   "description": "Share file or text through browser with end-to-end encryption",
   "scripts": {
     "build": "cross-env NODE_ENV=production webpack",
+    "lint": "eslint ./src",
     "start": "node src/server/index.js",
     "client": "cross-env NODE_ENV=development webpack-dev-server --devtool inline-source-map --hot",
     "server": "nodemon src/server/index.js",

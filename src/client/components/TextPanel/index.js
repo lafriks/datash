@@ -11,7 +11,9 @@ import {
   textToBytesAsync,
   bytesToText
 } from '../../encryption';
-import { formatRecipientId, bytesToHumanReadableString, sendWS } from '../../helper';
+import {
+  formatRecipientId, bytesToHumanReadableString, sendWS, isWebRTCSupported
+} from '../../helper';
 import globalStates from '../../global-states';
 import { sendBtnDefaultText, MaxDataSizeCanSendAtOnce, RecipientIdMaxLength } from '../../constants';
 
@@ -78,61 +80,15 @@ class TextPanel extends Component {
 
     this.setState({
       isSharing: true,
-      sendBtnText: 'Fetching Key...'
+      sendBtnText: 'Fetching meta...'
     });
 
     const progressId = uuid();
 
     axios.get(`/api/v1/clients/${encodeURIComponent(recipientId)}/meta`)
-      .then(({ data: { publicKey } }) => {
-        this.setState({
-          isSharing: true,
-          sendBtnText: 'Encrypting...'
-        });
-        this.updateProgress(progressId, recipientId, 'Encrypting...');
-
-        return Promise.all([
-          publicKey,
-          textToBytesAsync(textAreaVal)
-        ]);
-      })
-      .then(([publicKey, dataBytes]) => {
-        const encKey = encryptAsymmetric(publicKey, bytesToText(globalStates.symmetricEncKey));
-        return Promise.all([
-          encKey,
-          encryptSymmetric(globalStates.symmetricEncKey, dataBytes)
-        ]);
-      })
-      .then(([encKey, encData]) => {
-        this.setState({
-          sendBtnText: 'Sending...'
-        });
-        this.updateProgress(progressId, recipientId, 'Downloading...');
-
-        return axios.post(
-          `/api/v1/clients/${encodeURIComponent(globalStates.clientId)}/share`,
-          {
-            progressId,
-            to: recipientId,
-            encKey,
-            data: [
-              {
-                type: 'text',
-                name: null,
-                mimeType: null,
-                size: null,
-                encContent: encData
-              }
-            ]
-          }
-        );
-      })
-      .then(() => {
-        message.success(`Sent to recipient ${recipientId}`);
-        this.setState({
-          isSharing: false,
-          sendBtnText: sendBtnDefaultText
-        });
+      .then(({ data: { publicKey, isWebRTCSupported: isPeerWebRTCSupported } }) => {
+        const isCurrentWebRTCSupported = isWebRTCSupported();
+        return this.shareOverHttp(progressId, textAreaVal, publicKey, recipientId);
       })
       .catch((err) => {
         let msg;
@@ -153,6 +109,47 @@ class TextPanel extends Component {
           sendBtnText: sendBtnDefaultText
         });
       });
+  }
+
+  async shareOverHttp(progressId, text, publicKey, recipientId) {
+    this.setState({
+      isSharing: true,
+      sendBtnText: 'Encrypting...'
+    });
+    this.updateProgress(progressId, recipientId, 'Encrypting...');
+
+    const dataBytes = await textToBytesAsync(text);
+    const encData = await encryptSymmetric(globalStates.symmetricEncKey, dataBytes);
+    const encKey = encryptAsymmetric(publicKey, bytesToText(globalStates.symmetricEncKey));
+
+    this.setState({
+      sendBtnText: 'Sending...'
+    });
+    this.updateProgress(progressId, recipientId, 'Downloading...');
+
+    await axios.post(
+      `/api/v1/clients/${encodeURIComponent(globalStates.clientId)}/share`,
+      {
+        progressId,
+        to: recipientId,
+        encKey,
+        data: [
+          {
+            type: 'text',
+            name: null,
+            mimeType: null,
+            size: null,
+            encContent: encData
+          }
+        ]
+      }
+    );
+
+    message.success(`Sent to recipient ${recipientId}`);
+    this.setState({
+      isSharing: false,
+      sendBtnText: sendBtnDefaultText
+    });
   }
 
   updateProgress(progressId, recipientId, msg, error) {
