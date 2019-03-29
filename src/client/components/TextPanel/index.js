@@ -12,7 +12,7 @@ import {
   bytesToText
 } from '../../encryption';
 import {
-  formatRecipientId, bytesToHumanReadableString, sendWS, isWebRTCSupported
+  formatRecipientId, bytesToHumanReadableString, isWebRTCSupported, updateProgress
 } from '../../helper';
 import globalStates from '../../global-states';
 import { sendBtnDefaultText, MaxDataSizeCanSendAtOnce, RecipientIdMaxLength } from '../../constants';
@@ -102,7 +102,7 @@ class TextPanel extends Component {
           msg = err.message || String(err);
         }
         message.error(msg);
-        this.updateProgress(progressId, recipientId, msg, true);
+        updateProgress(progressId, recipientId, msg, true);
 
         this.setState({
           isSharing: false,
@@ -116,7 +116,7 @@ class TextPanel extends Component {
       isSharing: true,
       sendBtnText: 'Encrypting...'
     });
-    this.updateProgress(progressId, recipientId, 'Encrypting...');
+    updateProgress(progressId, recipientId, 'Encrypting...');
 
     const dataBytes = await textToBytesAsync(text);
     const encData = await encryptSymmetric(globalStates.symmetricEncKey, dataBytes);
@@ -125,7 +125,7 @@ class TextPanel extends Component {
     this.setState({
       sendBtnText: 'Sending...'
     });
-    this.updateProgress(progressId, recipientId, 'Downloading...');
+    updateProgress(progressId, recipientId, 'Downloading...');
 
     await axios.post(
       `/api/v1/clients/${encodeURIComponent(globalStates.clientId)}/share`,
@@ -149,18 +149,6 @@ class TextPanel extends Component {
     this.setState({
       isSharing: false,
       sendBtnText: sendBtnDefaultText
-    });
-  }
-
-  updateProgress(progressId, recipientId, msg, error) {
-    sendWS(globalStates.ws, {
-      type: 'progress',
-      data: {
-        progressId,
-        to: recipientId,
-        message: msg,
-        error: !!error
-      }
     });
   }
 

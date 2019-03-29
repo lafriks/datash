@@ -6,6 +6,7 @@ import {
 } from 'antd';
 import './index.css';
 import globalStates from '../../global-states';
+import { printError } from '../../helper';
 
 const { TextArea } = Input;
 const ratingLabels = ['Terrible', 'Bad', 'Normal', 'Good', 'Wonderful'];
@@ -60,7 +61,7 @@ class Feedback extends React.Component {
         history.push('/');
       })
       .catch((err) => {
-        message.error(err.message || String(err));
+        printError(err);
         this.setState({
           submittingFeedback: false
         });

@@ -3,7 +3,8 @@ const globalStates = window.globalStates = {
   privateKey: null,
   symmetricEncKey: null,
   ws: null,
-  clientId: null
+  clientId: null,
+  rtcPeerConns: new Map()
 };
 
 export const updateGlobalStates = (newStates) => {

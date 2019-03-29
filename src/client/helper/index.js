@@ -1,4 +1,6 @@
 import JSZip from 'jszip';
+import { message } from 'antd';
+import globalStates from '../global-states';
 
 const charSet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz*&-%/!?*+=()';
 
@@ -99,4 +101,20 @@ const getResolvedFileName = (fileName, fileNameSet) => {
   return fileName;
 };
 
+export const printError = (err) => {
+  message.error(err.message || String(err));
+};
+
 export const isWebRTCSupported = () => !!window.RTCPeerConnection;
+
+export const updateProgress = (progressId, recipientId, msg, error) => {
+  sendWS(globalStates.ws, {
+    type: 'progress',
+    data: {
+      progressId,
+      to: recipientId,
+      message: msg,
+      error: !!error
+    }
+  });
+};

@@ -1,11 +1,16 @@
 import React, { Component } from 'react';
-import { notification, Icon } from 'antd';
+import { notification, Icon, message } from 'antd';
 import uuid from 'uuid/v4';
 import './index.css';
 import Loader from '../Loader';
 import Content from '../Content';
-import { sendWS, arrayBufferToBlob, isWebRTCSupported } from '../../helper';
+import {
+  sendWS, arrayBufferToBlob, isWebRTCSupported, printError
+} from '../../helper';
 import globalStates, { updateGlobalStates } from '../../global-states';
+import {
+  respondToOffer, respondToAnswer, respondToCandidate, disposePeerConn
+} from '../../webrtc';
 import {
   generateAsymmetricKeyPair,
   generateSymmetricKey,
@@ -138,6 +143,18 @@ class App extends Component {
       case 'progress':
         this.onMessageProgress(data);
         break;
+      case 'webrtc-offer':
+        this.onMessageWebRTCOffer(data);
+        break;
+      case 'webrtc-answer':
+        this.onMessageWebRTCAnswer(data);
+        break;
+      case 'webrtc-candidate':
+        this.onMessageWebRTCCandidate(data);
+        break;
+      case 'webrtc-client-not-found':
+        this.onMessageWebRTCClientNotFound(data);
+        break;
       default:
         break;
     }
@@ -249,17 +266,55 @@ class App extends Component {
 
   onMessageProgress(data) {
     const {
-      progressId, from, message, error
+      progressId, from, message: msg, error
     } = data;
 
     notification.open({
       key: progressId,
       duration: !error ? 0 : 4.5,
       message: !error ? `Receiving data from ${from}` : 'Error',
-      description: message,
+      description: msg,
       icon: !error ? (<Icon type="loading" style={{ color: '#1890ff' }} />)
         : (<Icon type="close-circle" style={{ color: 'rgb(245, 38, 50)' }} />)
     });
+  }
+
+  onMessageWebRTCOffer(data) {
+    const { from, offer } = data;
+    respondToOffer(from, offer)
+      .catch((err) => {
+        printError(err);
+      });
+  }
+
+  onMessageWebRTCAnswer(data) {
+    const { from, answer } = data;
+    respondToAnswer(from, answer)
+      .catch((err) => {
+        printError(err);
+      });
+  }
+
+  onMessageWebRTCCandidate(data) {
+    const { from, candidate } = data;
+    respondToCandidate(from, candidate)
+      .catch((err) => {
+        printError(err);
+      });
+  }
+
+  onMessageWebRTCClientNotFound(data) {
+    const { clientId } = data;
+    const { rtcPeerConns } = globalStates;
+
+    if (rtcPeerConns.has(clientId)) {
+      const { meta } = rtcPeerConns.get(clientId);
+      if (meta && meta.rejPromise) {
+        meta.rejPromise(new Error(`Peer ${clientId} not found`));
+      }
+    }
+
+    disposePeerConn(clientId);
   }
 
   render() {

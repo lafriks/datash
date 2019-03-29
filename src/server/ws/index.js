@@ -67,6 +67,15 @@ const handleMessage = (wsConn, type, data) => {
     case 'progress':
       onMessageProgress(wsConn, data);
       break;
+    case 'webrtc-offer':
+      onMessageWebRTCOffer(wsConn, data);
+      break;
+    case 'webrtc-answer':
+      onMessageWebRTCAnswer(wsConn, data);
+      break;
+    case 'webrtc-candidate':
+      onMessageWebRTCCandidate(wsConn, data);
+      break;
     default:
       break;
   }
@@ -155,6 +164,63 @@ const onMessageProgress = (wsConn, data) => {
         error
       }
     });
+  });
+};
+
+const onMessageWebRTCOffer = (wsConn, data) => {
+  const { to, offer } = data;
+
+  if (!connMap.has(to)) {
+    sendWS(wsConn, {
+      type: 'webrtc-client-not-found',
+      data: { clientId: to },
+    });
+    return;
+  }
+
+  const wsConnTo = connMap.get(to)[0];
+
+  sendWS(wsConnTo, {
+    type: 'webrtc-offer',
+    data: { from: wsConn.clientId, offer },
+  });
+};
+
+const onMessageWebRTCAnswer = (wsConn, data) => {
+  const { to, answer } = data;
+
+  if (!connMap.has(to)) {
+    sendWS(wsConn, {
+      type: 'webrtc-client-not-found',
+      data: { clientId: to },
+    });
+    return;
+  }
+
+  const wsConnTo = connMap.get(to)[0];
+
+  sendWS(wsConnTo, {
+    type: 'webrtc-answer',
+    data: { from: wsConn.clientId, answer },
+  });
+};
+
+const onMessageWebRTCCandidate = (wsConn, data) => {
+  const { to, candidate } = data;
+
+  if (!connMap.has(to)) {
+    sendWS(wsConn, {
+      type: 'webrtc-client-not-found',
+      data: { clientId: to },
+    });
+    return;
+  }
+
+  const wsConnTo = connMap.get(to)[0];
+
+  sendWS(wsConnTo, {
+    type: 'webrtc-candidate',
+    data: { from: wsConn.clientId, candidate },
   });
 };
 

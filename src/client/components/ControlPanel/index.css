@@ -20,6 +20,10 @@
   margin-bottom: 10px;
 }
 
+.control-panel .control-panel-wrapper .ant-card-head {
+  min-height: initial;
+}
+
 .control-panel .control-panel-wrapper .client-id-label {
   margin-right: 10px;
   font-size: 10px;

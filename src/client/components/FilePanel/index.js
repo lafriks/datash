@@ -8,7 +8,7 @@ import {
 import './index.css';
 import ShareActions from '../ShareActions';
 import {
-  formatRecipientId, blobToArrayBuffer, bytesToHumanReadableString, makeZip, sendWS, isWebRTCSupported
+  formatRecipientId, blobToArrayBuffer, bytesToHumanReadableString, makeZip, isWebRTCSupported, updateProgress
 } from '../../helper';
 import { sendBtnDefaultText, MaxDataSizeCanSendAtOnce, RecipientIdMaxLength } from '../../constants';
 import globalStates from '../../global-states';
@@ -18,6 +18,7 @@ import {
   bytesToText,
   encryptObjectSymmetric
 } from '../../encryption';
+import { openRTCPeerConnection, sendToDataChannel } from '../../webrtc';
 
 const { Dragger } = Upload;
 
@@ -91,12 +92,9 @@ class FilePanel extends Component {
 
     axios.get(`/api/v1/clients/${encodeURIComponent(recipientId)}/meta`)
       .then(({ data: { publicKey, isWebRTCSupported: isPeerWebRTCSupported } }) => {
-        const isCurrentWebRTCSupported = isWebRTCSupported();
-
-        // if (isCurrentWebRTCSupported && isWebRTCSupported) {
-        //   return 23;
-        // }
-
+        if (isWebRTCSupported() && isPeerWebRTCSupported) {
+          return this.shareOverWebRTC(progressId, fileList, recipientId);
+        }
         return this.shareOverHttp(progressId, fileList, publicKey, recipientId);
       })
       .catch((err) => {
@@ -111,7 +109,7 @@ class FilePanel extends Component {
           msg = err.message || String(err);
         }
         message.error(msg);
-        this.updateProgress(progressId, recipientId, msg, true);
+        updateProgress(progressId, recipientId, msg, true);
 
         this.setState({
           isSharing: false,
@@ -124,14 +122,14 @@ class FilePanel extends Component {
     this.setState({
       sendBtnText: 'Archiving...'
     });
-    this.updateProgress(progressId, recipientId, 'Archiving...');
+    updateProgress(progressId, recipientId, 'Archiving...');
 
     const resolvedFileList = await this.resolveFileList(fileList);
 
     this.setState({
       sendBtnText: 'Encrypting...'
     });
-    this.updateProgress(progressId, recipientId, 'Encrypting...');
+    updateProgress(progressId, recipientId, 'Encrypting...');
 
     const fileArrayBuffers = await Promise.all(resolvedFileList.map(file => Promise.all([
       { name: file.name, mimeType: file.type || 'application/octet-stream', size: `${file.size}` },
@@ -148,7 +146,7 @@ class FilePanel extends Component {
     this.setState({
       sendBtnText: 'Sending...'
     });
-    this.updateProgress(progressId, recipientId, 'Downloading...');
+    updateProgress(progressId, recipientId, 'Downloading...');
 
     await axios.post(`/api/v1/clients/${encodeURIComponent(globalStates.clientId)}/share`, {
       progressId,
@@ -169,15 +167,35 @@ class FilePanel extends Component {
     });
   }
 
-  updateProgress(progressId, recipientId, msg, error) {
-    sendWS(globalStates.ws, {
-      type: 'progress',
-      data: {
-        progressId,
-        to: recipientId,
-        message: msg,
-        error: !!error
-      }
+  async shareOverWebRTC(progressId, fileList, recipientId) {
+    const { dataChannel } = await openRTCPeerConnection(recipientId);
+
+    this.setState({
+      sendBtnText: 'Archiving...'
+    });
+    updateProgress(progressId, recipientId, 'Archiving...');
+
+    const resolvedFileList = await this.resolveFileList(fileList);
+    const data = resolvedFileList.map(file => ({
+      meta: {
+        type: 'file',
+        name: file.name,
+        mimeType: file.type || 'application/octet-stream',
+        size: file.size,
+      },
+      content: file
+    }));
+
+    this.setState({
+      sendBtnText: 'Sending...'
+    });
+    updateProgress(progressId, recipientId, 'Downloading...');
+
+    await sendToDataChannel(progressId, dataChannel, data);
+
+    this.setState({
+      isSharing: false,
+      sendBtnText: sendBtnDefaultText
     });
   }
 
