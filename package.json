@@ -9,7 +9,8 @@
     "client": "cross-env NODE_ENV=development webpack-dev-server --devtool inline-source-map --hot",
     "server": "nodemon src/server/index.js",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "heroku": "git push heroku master"
+    "heroku": "git push heroku master",
+    "staging": "git push staging master"
   },
   "author": "Rousan Ali <rousanali786@gmail.com> (https://rousan.io)",
   "license": "MIT",
