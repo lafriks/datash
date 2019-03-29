@@ -10,7 +10,8 @@
     "client": "cross-env NODE_ENV=development webpack-dev-server --devtool inline-source-map --hot",
     "server": "nodemon src/server/index.js",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "heroku": "git push heroku master"
+    "heroku": "git push heroku master",
+    "staging": "git push staging master"
   },
   "author": "Rousan Ali <rousanali786@gmail.com> (https://rousan.io)",
   "license": "MIT",
@@ -36,7 +37,7 @@
     "prop-types": "^15.7.2",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
-    "react-router-dom": "^4.4.0",
+    "react-router-dom": "^5.0.0",
     "uuid": "^3.3.2",
     "ws": "^6.2.0"
   },
