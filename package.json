@@ -34,7 +34,7 @@
     "prop-types": "^15.7.2",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
-    "react-router-dom": "^4.4.0",
+    "react-router-dom": "^4.3.1",
     "uuid": "^3.3.2",
     "ws": "^6.2.0"
   },
