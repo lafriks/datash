@@ -1,3 +1,4 @@
+require('dotenv').config();
 const path = require('path');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -60,12 +61,12 @@ module.exports = {
   },
   devServer: {
     host: '0.0.0.0',
-    port: 3000,
+    port: process.env.WEBPACK_PORT,
     open: false,
     proxy: {
-      '/api': 'http://localhost:3001',
+      '/api': `http://localhost:${process.env.PORT}`,
       '/connect': {
-        target: 'ws://localhost:3001',
+        target: `ws://localhost:${process.env.PORT}`,
         ws: true,
       },
     },
