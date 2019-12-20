@@ -58,6 +58,7 @@ class App extends Component {
   }
 
   componentDidMount() {
+    console.log("log");
     this.setState({
       loadingText: 'Generating encryption keys...',
     });

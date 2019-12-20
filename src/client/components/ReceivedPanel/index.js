@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Clipboard from 'clipboard';
+import { saveAs } from 'file-saver';
 import {
   List, Empty, Avatar, Button, message
 } from 'antd';
@@ -13,7 +14,7 @@ class ReceivedPanel extends Component {
   constructor(props) {
     super(props);
 
-    this.downloaderRef = React.createRef();
+    // this.downloaderRef = React.createRef();
     this.onClickDownload = this.onClickDownload.bind(this);
   }
 
@@ -107,12 +108,16 @@ class ReceivedPanel extends Component {
       return;
     }
 
-    const downloaderLink = this.downloaderRef.current;
-    const objUrl = URL.createObjectURL(item.content);
-    downloaderLink.href = objUrl;
-    downloaderLink.download = item.name || 'file';
-    downloaderLink.click();
-    URL.revokeObjectURL(objUrl);
+    saveAs(item.content, item.name || 'file');
+
+    // const downloaderLink = this.downloaderRef.current;
+    // const objUrl = URL.createObjectURL(item.content);
+    // downloaderLink.href = objUrl;
+    // downloaderLink.download = item.name || 'file';
+    // downloaderLink.click();
+    // setTimeout(() => {
+    //   URL.revokeObjectURL(objUrl);
+    // }, 60 * 1000);
   }
 
   getItemName(item) {
@@ -158,11 +163,11 @@ class ReceivedPanel extends Component {
             rowKey={item => item.id}
           />
         </div>
-        <a
+        {/* <a
           ref={this.downloaderRef}
           href="#"
           style={{ visibility: 'hidden' }}
-        />
+        /> */}
       </div>
     );
   }
