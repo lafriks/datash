@@ -58,7 +58,6 @@ class App extends Component {
   }
 
   componentDidMount() {
-    console.log("log");
     this.setState({
       loadingText: 'Generating encryption keys...',
     });
@@ -82,7 +81,6 @@ class App extends Component {
     updateGlobalStates({ ws });
 
     ws.addEventListener('open', () => {
-      console.log();
       sendWS(ws, {
         type: 'client-id',
         data: {
