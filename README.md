@@ -14,7 +14,7 @@ Send and Receive files directly from your browser
 [![Contributors](https://img.shields.io/github/contributors/datash/datash.svg)](https://github.com/datash/datash/graphs/contributors)
 [![License](https://img.shields.io/github/license/datash/datash.svg)](https://github.com/datash/datash/blob/master/LICENSE)
 
-# What is Datash?
+# What is Datash (pronunciation: /deɪ.ˈtæʃ/) ?
 
 Datash helps you to send or receive text or file from one device to another one through browser, it doesn't require any login or registration. It uses `end-to-end` encryption with `1024bit` public/private key and encrypts data with recipient public key before sending which ensures data is being sent to the intended person.
 

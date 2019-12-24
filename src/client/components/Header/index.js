@@ -30,6 +30,9 @@ const Header = () => (
           <Avatar src={logoImage} size="small" />
           <span className="app-name-label">{appName.toUpperCase().split('').join(' ')}</span>
         </Link>
+        <span className="app-name-pronunciation-ipa">
+          <code>pronunciation: /deɪ.ˈtæʃ/</code>
+        </span>
       </Col>
       <Col span={16} className="right-section">
         {menuItems.map(menuItem => (
