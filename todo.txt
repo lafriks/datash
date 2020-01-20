@@ -1,0 +1,2 @@
+1. Generating Client Id:
+  If 4-digit is saturated, use 5 digit and then 6 digits and so on.
