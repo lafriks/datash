@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { notification, Icon, message } from 'antd';
+import { notification, Icon } from 'antd';
 import uuid from 'uuid/v4';
+import Peer from 'peerjs';
 import './index.css';
 import Loader from '../Loader';
 import Content from '../Content';
@@ -79,6 +80,24 @@ class App extends Component {
     cacheAsymmetricKeys(asymmetricKeys);
 
     this.setupWSConn();
+
+    const peer = new Peer({
+      host: 'localhost',
+      port: 9000,
+      path: '/myapp',
+    });
+
+    peer.on('open', (id) => {
+      console.log('opened', id);
+    });
+
+    peer.on('error', (err) => {
+      console.log(err);
+    });
+
+    peer.on('close', () => {
+      console.log('closed');
+    });
   }
 
   setupWSConn() {
