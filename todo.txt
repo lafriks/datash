@@ -1,2 +1,4 @@
 1. Generating Client Id:
   If 4-digit is saturated, use 5 digit and then 6 digits and so on.
+
+2. Show receiving progress bar in data-received tab and pop up a notification to inform the event and it will be closable.
