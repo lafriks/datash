@@ -2,13 +2,14 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import uuid from 'uuid';
+import { Base64 } from 'js-base64';
 import {
   Upload, Icon, Input, message, Checkbox
 } from 'antd';
 import './index.css';
 import ShareActions from '../ShareActions';
 import {
-  formatRecipientId, blobToArrayBuffer, bytesToHumanReadableString, makeZip, sendWS
+  formatRecipientId, blobToArrayBuffer, bytesToHumanReadableString, makeZip, sendWS, base64toBlob
 } from '../../helper';
 import { sendBtnDefaultText, MaxDataSizeCanSendAtOnce, RecipientIdMaxLength } from '../../constants';
 import globalStates from '../../global-states';
@@ -36,6 +37,34 @@ class FilePanel extends Component {
     this.onReset = this.onReset.bind(this);
     this.onShare = this.onShare.bind(this);
     this.onChangeSendAsZip = this.onChangeSendAsZip.bind(this);
+
+    if (window.Android) {
+      window.onReceiveFileFromAndroidShare = this.onReceiveFileFromAndroidShare.bind(this);
+    }
+  }
+
+  onReceiveFileFromAndroidShare(nameBase64, mimeTypeBase64, base64Data) {
+    const { changeTab } = this.props;
+
+    changeTab('file');
+
+    console.log('bbbbbbb', Base64.decode(nameBase64));
+
+    let mimeType;
+    if (mimeTypeBase64) {
+      mimeType = Base64.decode(mimeTypeBase64);
+    } else {
+      mimeType = 'application/octet-stream';
+    }
+
+    const file = new File([base64toBlob(base64Data, mimeType)], Base64.decode(nameBase64), {
+      type: mimeType
+    });
+    file.uid = uuid();
+
+    this.setState(state => ({
+      fileList: [...state.fileList, file],
+    }));
   }
 
   onChangeRecipientVal(evt) {
@@ -223,6 +252,7 @@ class FilePanel extends Component {
       },
 
       beforeUpload: (file) => {
+        console.log(file);
         this.setState(state => ({
           fileList: [...state.fileList, file],
         }));
@@ -243,7 +273,7 @@ class FilePanel extends Component {
                   </p>
                   <p className="ant-upload-text">Click or drag file to this area to send</p>
                   <p className="ant-upload-hint">
-                  Support for a single or bulk upload
+                    Support for a single or bulk upload
                   </p>
                 </Dragger>
               </div>
@@ -279,7 +309,8 @@ class FilePanel extends Component {
 FilePanel.propTypes = {
   style: PropTypes.instanceOf(Object).isRequired,
   recipientId: PropTypes.string.isRequired,
-  onChangeRecipientId: PropTypes.func.isRequired
+  onChangeRecipientId: PropTypes.func.isRequired,
+  changeTab: PropTypes.func.isRequired
 };
 
 export default FilePanel;

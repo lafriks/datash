@@ -33,6 +33,7 @@ class ControlPanel extends React.Component {
     };
 
     this.onChangeRecipientId = this.onChangeRecipientId.bind(this);
+    this.changeTab = this.changeTab.bind(this);
   }
 
   onChangeRecipientId(newVal) {
@@ -41,6 +42,17 @@ class ControlPanel extends React.Component {
     });
 
     cacheRecipientId(newVal);
+  }
+
+  changeTab(tabKey) {
+    const { onTabChange } = this.props;
+    onTabChange(tabKey);
+  }
+
+  componentDidMount() {
+    if (window.Android) {
+      window.Android.onWebAppMount();
+    }
   }
 
   render() {
@@ -68,11 +80,13 @@ class ControlPanel extends React.Component {
               style={displayStyle(selectedTabKey === 'text')}
               recipientId={recipientId}
               onChangeRecipientId={this.onChangeRecipientId}
+              changeTab={this.changeTab}
             />
             <FilePanel
               style={displayStyle(selectedTabKey === 'file')}
               recipientId={recipientId}
               onChangeRecipientId={this.onChangeRecipientId}
+              changeTab={this.changeTab}
             />
             <ReceivedPanel
               style={displayStyle(selectedTabKey === 'received')}

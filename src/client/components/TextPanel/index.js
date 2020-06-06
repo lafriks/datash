@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import { Input, message } from 'antd';
+import { Base64 } from 'js-base64';
 import uuid from 'uuid';
 import './index.css';
 import ShareActions from '../ShareActions';
@@ -31,6 +32,20 @@ class TextPanel extends Component {
     this.onChangeTextAreaVal = this.onChangeTextAreaVal.bind(this);
     this.onReset = this.onReset.bind(this);
     this.onShare = this.onShare.bind(this);
+
+    if (window.Android) {
+      window.onReceiveTextFromAndroidShare = this.onReceiveTextFromAndroidShare.bind(this);
+    }
+  }
+
+  onReceiveTextFromAndroidShare(base64Text) {
+    const { changeTab } = this.props;
+
+    changeTab('text');
+
+    this.setState({
+      textAreaVal: Base64.decode(base64Text)
+    });
   }
 
   onChangeRecipientVal(evt) {
@@ -214,7 +229,8 @@ class TextPanel extends Component {
 TextPanel.propTypes = {
   style: PropTypes.instanceOf(Object).isRequired,
   recipientId: PropTypes.string.isRequired,
-  onChangeRecipientId: PropTypes.func.isRequired
+  onChangeRecipientId: PropTypes.func.isRequired,
+  changeTab: PropTypes.func.isRequired
 };
 
 export default TextPanel;

@@ -108,7 +108,11 @@ class ReceivedPanel extends Component {
       return;
     }
 
-    saveAs(item.content, item.name || 'file');
+    if (window.Android) {
+      this.saveFileInAndroid(item);
+    } else {
+      saveAs(item.content, item.name || 'file');
+    }
 
     // const downloaderLink = this.downloaderRef.current;
     // const objUrl = URL.createObjectURL(item.content);
@@ -118,6 +122,20 @@ class ReceivedPanel extends Component {
     // setTimeout(() => {
     //   URL.revokeObjectURL(objUrl);
     // }, 60 * 1000);
+  }
+
+  saveFileInAndroid(item) {
+    window.Android.onStartFileDownload(item.id, item.from, item.name || 'file', `${item.size}`, item.mimeType);
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const dataUrl = reader.result;
+      const base64 = dataUrl.split(',')[1];
+      window.Android.onCompleteFileDownload(item.id, base64);
+    };
+
+    reader.readAsDataURL(item.content);
   }
 
   getItemName(item) {
