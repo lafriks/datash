@@ -11,6 +11,7 @@ const mongoose = require('mongoose');
 const { handleWSConn } = require('./ws');
 const router = require('./routes');
 const logger = require('./logger');
+const helper = require('./helper');
 
 mongoose.connect(process.env.MONGODB_CONNECT_STRING, {
   family: 4,
@@ -36,7 +37,7 @@ ws.on('error', (err) => {
 });
 
 app.use((req, res, next) => {
-  logger.info(`${req.method.toUpperCase()} ${req.originalUrl}`);
+  logger.info(`${helper.extractClientIp(req)} ${req.method.toUpperCase()} ${req.originalUrl}`);
   next();
 });
 app.use(cors());
