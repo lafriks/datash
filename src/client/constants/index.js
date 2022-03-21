@@ -8,4 +8,4 @@ export const RecipientIdMaxLength = 4;
 
 export const appName = 'Datash';
 
-export const githubURL = 'https://github.com/datash/datash';
+export const githubURL = 'https://github.com/lafriks/datash';

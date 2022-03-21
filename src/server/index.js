@@ -81,7 +81,7 @@ app.use((err, req, res, next) => {
 });
 
 const host = process.env.HOST || 'localhost';
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3000;
 server.listen(port, host, () => {
   logger.info(`Listening on ${host}:${port}`);
 });
