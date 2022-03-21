@@ -15,10 +15,6 @@ const menuItems = [
   {
     label: 'About',
     href: '/about'
-  },
-  {
-    label: 'Feedback',
-    href: '/feedback'
   }
 ];
 

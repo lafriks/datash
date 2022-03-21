@@ -8,6 +8,7 @@ const cors = require('cors');
 const HttpStatus = require('http-status-codes');
 const WebSocket = require('ws');
 const mongoose = require('mongoose');
+const { stringReplace } = require('string-replace-middleware');
 const { handleWSConn } = require('./ws');
 const router = require('./routes');
 const logger = require('./logger');
@@ -57,6 +58,12 @@ app.use((req, res) => {
       });
   }
 });
+
+app.use(stringReplace({
+  '{{GOOGLE_ANALYTICS_ID}}': process.env.GOOGLE_ANALYTICS_ID,
+}, {
+  contentTypeFilterRegexp: /^text\/html/,
+}));
 
 // eslint-disable-next-line
 app.use((err, req, res, next) => {

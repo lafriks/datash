@@ -82,7 +82,7 @@ module.exports = {
         removeComments: true,
         removeRedundantAttributes: true,
         useShortDoctype: true,
-        minifyJS: true,
+        minifyJS: false,
       },
     })
   ]
