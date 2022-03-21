@@ -72,7 +72,7 @@ const About = () => (
     <h2>How to use?</h2>
     <p>
       If you want to send something to someone, go to
-      <a href="https://datash.co">datash.co</a>
+      <a href="https://datash.me">datash.me</a>
       and also let recipient open the same link, select the files or enter text you want to send and
       enter the
       <span className="highlight">Recipient ID</span>
